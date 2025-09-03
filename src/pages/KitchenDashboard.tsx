@@ -4,67 +4,35 @@ import { DailyOrders } from "@/components/Kitchen/DailyOrders";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle, Clock, Users } from "lucide-react";
+import { useMealOrders } from "@/hooks/useMealOrders";
 
-// Mock data for kitchen orders
-const mockOrders = [
-  {
-    studentId: "1",
-    studentName: "Олексій Петренко",
-    grade: "7-А",
-    meal1: "Борщ український з сметаною",
-    meal2: "Котлета куряча з картопляним пюре",
-    side: "Салат з свіжих овочів",
-    allergies: ["Горіхи", "Молочні продукти"],
-    specialNotes: "Без сметани в борщі"
-  },
-  {
-    studentId: "2",
-    studentName: "Марія Петренко", 
-    grade: "4-Б",
-    meal1: "Суп-пюре з гарбуза",
-    meal2: "Рагу овочеве з рисом",
-    allergies: [],
-  },
-  {
-    studentId: "3",
-    studentName: "Андрій Коваль",
-    grade: "6-В",
-    meal1: "Борщ український з сметаною",
-    meal2: "Котлета куряча з картопляним пюре",
-    side: "Салат з свіжих овочів",
-    allergies: ["Яйця"],
-  },
-  {
-    studentId: "4",
-    studentName: "Софія Іванова",
-    grade: "5-А",
-    meal1: "Суп-пюре з гарбуза",
-    meal2: "Котлета куряча з картопляним пюре",
-    allergies: ["Молочні продукти"],
-  },
-  {
-    studentId: "5",
-    studentName: "Михайло Шевченко",
-    grade: "8-Б",
-    meal1: "Борщ український з сметаною",
-    meal2: "Рагу овочеве з рисом",
-    side: "Салат з свіжих овочів",
-    allergies: [],
-  }
-];
+// Mock data for kitchen orders - removed since we now use real data
 
 const KitchenDashboard = () => {
   const [completedDishes, setCompletedDishes] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+  
+  const { orders, loading, error } = useMealOrders(selectedDate);
   
   const handleMarkReady = (dishName: string) => {
     setCompletedDishes(prev => [...prev, dishName]);
-    // Show toast notification
     console.log(`Страва "${dishName}" позначена як готова`);
   };
 
-  const today = new Date().toISOString().split('T')[0];
-  const totalOrders = mockOrders.length;
-  const studentsWithAllergies = mockOrders.filter(order => order.allergies.length > 0).length;
+  const handleShowTomorrow = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setSelectedDate(tomorrow.toISOString().split('T')[0]);
+  };
+
+  const handleShowToday = () => {
+    setSelectedDate(new Date().toISOString().split('T')[0]);
+  };
+
+  const totalOrders = orders.length;
+  const studentsWithAllergies = orders.filter(order => order.allergies.length > 0).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -134,13 +102,17 @@ const KitchenDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-3">
-              <Button variant="default">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Позначити всі готовими
+              <Button variant="default" onClick={handleShowToday}>
+                <Calendar className="h-4 w-4 mr-2" />
+                Сьогодні
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleShowTomorrow}>
                 <Calendar className="h-4 w-4 mr-2" />
                 Замовлення на завтра
+              </Button>
+              <Button variant="outline">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Позначити всі готовими
               </Button>
               <Button variant="outline">
                 Друкувати список
@@ -150,11 +122,33 @@ const KitchenDashboard = () => {
         </Card>
 
         {/* Daily Orders */}
-        <DailyOrders 
-          date={today}
-          orders={mockOrders}
-          onMarkReady={handleMarkReady}
-        />
+        {loading ? (
+          <Card className="border-card-border">
+            <CardContent className="p-8 text-center">
+              <p className="text-muted-foreground">Завантаження замовлень...</p>
+            </CardContent>
+          </Card>
+        ) : error ? (
+          <Card className="border-card-border">
+            <CardContent className="p-8 text-center">
+              <p className="text-destructive">Помилка: {error}</p>
+            </CardContent>
+          </Card>
+        ) : orders.length === 0 ? (
+          <Card className="border-card-border">
+            <CardContent className="p-8 text-center">
+              <p className="text-muted-foreground">
+                Немає замовлень на {selectedDate === new Date().toISOString().split('T')[0] ? 'сьогодні' : 'цю дату'}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <DailyOrders 
+            date={selectedDate}
+            orders={orders}
+            onMarkReady={handleMarkReady}
+          />
+        )}
       </main>
     </div>
   );
