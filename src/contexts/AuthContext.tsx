@@ -48,12 +48,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Fetch user profile
           setTimeout(async () => {
             const { data: profileData } = await supabase
-              .from('profiles')
+              .from('profiles' as any)
               .select('*')
               .eq('user_id', session.user.id)
               .single();
             
-            setProfile(profileData);
+            setProfile(profileData as any);
             setLoading(false);
           }, 0);
         } else {
@@ -70,12 +70,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (session?.user) {
         supabase
-          .from('profiles')
+          .from('profiles' as any)
           .select('*')
           .eq('user_id', session.user.id)
           .single()
           .then(({ data: profileData }) => {
-            setProfile(profileData);
+            setProfile(profileData as any);
             setLoading(false);
           });
       } else {

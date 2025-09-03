@@ -41,7 +41,7 @@ export const MenuView = ({}: MenuViewProps) => {
     if (!user) return;
     
     const { data, error } = await supabase
-      .from('children')
+      .from('children' as any)
       .select('*')
       .eq('parent_id', user.id);
     
@@ -54,9 +54,9 @@ export const MenuView = ({}: MenuViewProps) => {
       return;
     }
     
-    setChildren(data || []);
+    setChildren((data as any[]) || []);
     if (data && data.length > 0) {
-      setCurrentChild(data[0].id);
+      setCurrentChild((data[0] as any).id);
     }
   };
 
@@ -84,7 +84,7 @@ export const MenuView = ({}: MenuViewProps) => {
 
     // Remove existing order for this day and meal type
     await supabase
-      .from('meal_orders')
+      .from('meal_orders' as any)
       .delete()
       .eq('child_id', currentChild)
       .eq('meal_date', currentDay.date)
@@ -92,13 +92,13 @@ export const MenuView = ({}: MenuViewProps) => {
 
     // Add new order
     const { error } = await supabase
-      .from('meal_orders')
+      .from('meal_orders' as any)
       .insert({
         child_id: currentChild,
         meal_id: meal.id,
         meal_date: currentDay.date,
         meal_type: mealType
-      });
+      } as any);
 
     if (error) {
       toast({
