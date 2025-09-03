@@ -4,6 +4,7 @@ import { BottomNav } from "@/components/Layout/BottomNav";
 import { WelcomeCard } from "@/components/Dashboard/WelcomeCard";
 import { QuickStats } from "@/components/Dashboard/QuickStats";
 import { ChildrenCards } from "@/components/Dashboard/ChildrenCards";
+import { MenuView } from "@/components/Dashboard/MenuView";
 
 // Mock data - in real app this would come from API
 const mockChildren = [
@@ -46,24 +47,46 @@ const Dashboard = () => {
       />
       
       <main className="container mx-auto px-4 py-6 pb-20 space-y-6">
-        <WelcomeCard 
-          parentName="Оксана"
-          childrenCount={2}
-          pendingOrders={5}
-        />
-        
-        <QuickStats 
-          weeklySpent={450}
-          mealsThisWeek={8}
-          upcomingMeals={6}
-          monthlyBudget={1500}
-        />
-        
-        <ChildrenCards 
-          children={mockChildren}
-          onViewChild={handleViewChild}
-          onOrderMeals={handleOrderMeals}
-        />
+        {activeTab === "home" && (
+          <>
+            <WelcomeCard 
+              parentName="Оксана"
+              childrenCount={2}
+              pendingOrders={5}
+            />
+            
+            <QuickStats 
+              weeklySpent={450}
+              mealsThisWeek={8}
+              upcomingMeals={6}
+              monthlyBudget={1500}
+            />
+            
+            <ChildrenCards 
+              children={mockChildren}
+              onViewChild={handleViewChild}
+              onOrderMeals={handleOrderMeals}
+            />
+          </>
+        )}
+
+        {activeTab === "menu" && (
+          <MenuView />
+        )}
+
+        {activeTab === "profile" && (
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold mb-2">Профіль</h2>
+            <p className="text-muted-foreground">Розділ в розробці</p>
+          </div>
+        )}
+
+        {activeTab === "settings" && (
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold mb-2">Налаштування</h2>
+            <p className="text-muted-foreground">Розділ в розробці</p>
+          </div>
+        )}
       </main>
       
       <BottomNav 
