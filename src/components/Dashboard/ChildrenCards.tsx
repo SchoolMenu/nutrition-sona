@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Calendar, AlertTriangle, CheckCircle } from "lucide-react";
+import { AddChildDialog } from "./AddChildDialog";
 
 interface Child {
   id: string;
@@ -18,16 +19,15 @@ interface ChildrenCardsProps {
   children: Child[];
   onViewChild: (childId: string) => void;
   onOrderMeals: (childId: string) => void;
+  onChildAdded: () => void;
 }
 
-export const ChildrenCards = ({ children, onViewChild, onOrderMeals }: ChildrenCardsProps) => {
+export const ChildrenCards = ({ children, onViewChild, onOrderMeals, onChildAdded }: ChildrenCardsProps) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground">Ваші діти</h3>
-        <Button variant="outline" size="sm">
-          Додати дитину
-        </Button>
+        <AddChildDialog onChildAdded={onChildAdded} />
       </div>
       
       <div className="grid gap-4 md:grid-cols-2">

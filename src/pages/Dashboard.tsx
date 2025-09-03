@@ -100,6 +100,7 @@ const Dashboard = () => {
                 children={children}
                 onViewChild={handleViewChild}
                 onOrderMeals={handleOrderMeals}
+                onChildAdded={fetchChildren}
               />
             )}
           </>
