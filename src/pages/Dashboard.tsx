@@ -1,33 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Layout/Header";
 import { BottomNav } from "@/components/Layout/BottomNav";
 import { WelcomeCard } from "@/components/Dashboard/WelcomeCard";
 import { QuickStats } from "@/components/Dashboard/QuickStats";
 import { ChildrenCards } from "@/components/Dashboard/ChildrenCards";
 import { MenuView } from "@/components/Dashboard/MenuView";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Mock data - in real app this would come from API
-const mockChildren = [
-  {
-    id: "1",
-    name: "Олексій Петренко",
-    grade: "7",
-    allergies: ["Горіхи", "Молочні продукти"],
-    todayMeal: "Борщ з сметаною",
-    hasOrderForWeek: true
-  },
-  {
-    id: "2", 
-    name: "Марія Петренко",
-    grade: "4",
-    allergies: [],
-    todayMeal: "Котлета з картоплею",
-    hasOrderForWeek: false
-  }
-];
+interface Child {
+  id: string;
+  name: string;
+  grade: string;
+  allergies: string[];
+  todayMeal?: string;
+  hasOrderForWeek: boolean;
+}
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("home");
+  const [children, setChildren] = useState<Child[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchChildren();
+    }
+  }, [user]);
+
+  const fetchChildren = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('children')
+      .select('*')
+      .eq('parent_id', user.id);
+    
+    if (error) {
+      console.error('Error fetching children:', error);
+      setLoading(false);
+      return;
+    }
+    
+    // Add mock meal info for display
+    const childrenWithMeals = (data || []).map((child: any) => ({
+      ...child,
+      todayMeal: child.name.includes('Олексій') ? "Борщ з сметаною" : "Котлета з картоплею",
+      hasOrderForWeek: child.name.includes('Олексій')
+    }));
+    
+    setChildren(childrenWithMeals);
+    setLoading(false);
+  };
 
   const handleViewChild = (childId: string) => {
     console.log("View child:", childId);
@@ -50,8 +75,8 @@ const Dashboard = () => {
         {activeTab === "home" && (
           <>
             <WelcomeCard 
-              parentName="Оксана"
-              childrenCount={2}
+              parentName="Каріна"
+              childrenCount={children.length}
               pendingOrders={5}
             />
             
@@ -62,11 +87,17 @@ const Dashboard = () => {
               monthlyBudget={1500}
             />
             
-            <ChildrenCards 
-              children={mockChildren}
-              onViewChild={handleViewChild}
-              onOrderMeals={handleOrderMeals}
-            />
+            {loading ? (
+              <div className="text-center py-8">
+                <p>Завантаження дітей...</p>
+              </div>
+            ) : (
+              <ChildrenCards 
+                children={children}
+                onViewChild={handleViewChild}
+                onOrderMeals={handleOrderMeals}
+              />
+            )}
           </>
         )}
 
