@@ -55,7 +55,7 @@ export const useMealOrders = (date: string) => {
             meal_date,
             meal_id,
             meal_type,
-            children (
+            children!fk_meal_orders_child (
               name,
               grade,
               allergies
