@@ -22,13 +22,30 @@ export interface WeekMenu {
   days: DayMenu[];
 }
 
-// Ukrainian school menu data
+// Generate current week dates
+const getCurrentWeekDates = () => {
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - today.getDay() + 1); // Monday
+  
+  const dates = [];
+  for (let i = 0; i < 5; i++) { // Monday to Friday
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    dates.push(date.toISOString().split('T')[0]);
+  }
+  return dates;
+};
+
+const currentWeekDates = getCurrentWeekDates();
+
+// Ukrainian school menu data  
 export const mockMenuData: WeekMenu = {
-  weekStart: "2024-01-15",
-  weekEnd: "2024-01-19",
+  weekStart: currentWeekDates[0],
+  weekEnd: currentWeekDates[4],
   days: [
     {
-      date: "2024-01-15",
+      date: currentWeekDates[0],
       dayName: "Понеділок",
       meal1Options: [
         {
@@ -78,7 +95,7 @@ export const mockMenuData: WeekMenu = {
       ]
     },
     {
-      date: "2024-01-16",
+      date: currentWeekDates[1],
       dayName: "Вівторок",
       meal1Options: [
         {
@@ -128,7 +145,7 @@ export const mockMenuData: WeekMenu = {
       ]
     },
     {
-      date: "2024-01-17",
+      date: currentWeekDates[2],
       dayName: "Середа",
       meal1Options: [
         {
@@ -178,7 +195,7 @@ export const mockMenuData: WeekMenu = {
       ]
     },
     {
-      date: "2024-01-18",
+      date: currentWeekDates[3],
       dayName: "Четвер",
       meal1Options: [
         {
@@ -228,7 +245,7 @@ export const mockMenuData: WeekMenu = {
       ]
     },
     {
-      date: "2024-01-19",
+      date: currentWeekDates[4],
       dayName: "П'ятниця",
       meal1Options: [
         {
