@@ -22,6 +22,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedChildId, setSelectedChildId] = useState<string>("");
 
   useEffect(() => {
     if (user) {
@@ -61,7 +62,8 @@ const Dashboard = () => {
 
   const handleOrderMeals = (childId: string) => {
     console.log("Order meals for child:", childId);
-    // Navigate to meal ordering
+    setSelectedChildId(childId);
+    setActiveTab("menu");
   };
 
   return (
@@ -102,7 +104,7 @@ const Dashboard = () => {
         )}
 
         {activeTab === "menu" && (
-          <MenuView />
+          <MenuView selectedChildId={selectedChildId} />
         )}
 
         {activeTab === "profile" && (

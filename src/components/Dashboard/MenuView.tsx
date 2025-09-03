@@ -17,10 +17,10 @@ interface Child {
 }
 
 interface MenuViewProps {
-  // Remove unused prop since we're handling child selection internally
+  selectedChildId?: string;
 }
 
-export const MenuView = ({}: MenuViewProps) => {
+export const MenuView = ({ selectedChildId }: MenuViewProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
@@ -36,6 +36,12 @@ export const MenuView = ({}: MenuViewProps) => {
       fetchChildren();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (selectedChildId && children.length > 0) {
+      setCurrentChild(selectedChildId);
+    }
+  }, [selectedChildId, children]);
 
   const fetchChildren = async () => {
     if (!user) return;
