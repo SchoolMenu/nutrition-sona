@@ -5,6 +5,7 @@ import { WelcomeCard } from "@/components/Dashboard/WelcomeCard";
 import { QuickStats } from "@/components/Dashboard/QuickStats";
 import { ChildrenCards } from "@/components/Dashboard/ChildrenCards";
 import { MenuView } from "@/components/Dashboard/MenuView";
+import { ChildProfile } from "@/components/Dashboard/ChildProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -57,7 +58,8 @@ const Dashboard = () => {
 
   const handleViewChild = (childId: string) => {
     console.log("View child:", childId);
-    // Navigate to child profile
+    setSelectedChildId(childId);
+    setActiveTab("profile");
   };
 
   const handleOrderMeals = (childId: string) => {
@@ -108,9 +110,18 @@ const Dashboard = () => {
         )}
 
         {activeTab === "profile" && (
-          <div className="text-center py-8">
-            <h2 className="text-xl font-semibold mb-2">Профіль</h2>
-            <p className="text-muted-foreground">Розділ в розробці</p>
+          <div className="space-y-4">
+            {selectedChildId ? (
+              <ChildProfile 
+                child={children.find(c => c.id === selectedChildId)} 
+                onBack={() => setActiveTab("home")}
+              />
+            ) : (
+              <div className="text-center py-8">
+                <h2 className="text-xl font-semibold mb-2">Профіль</h2>
+                <p className="text-muted-foreground">Оберіть дитину для перегляду профілю</p>
+              </div>
+            )}
           </div>
         )}
 
