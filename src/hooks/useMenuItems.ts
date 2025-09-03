@@ -32,7 +32,6 @@ export const useMenuItems = () => {
         // Add meal1 options
         for (const item of day.meal1Options) {
           menuItemsToInsert.push({
-            id: item.id.startsWith('new_') ? undefined : item.id, // Let DB generate ID for new items
             name: item.name,
             description: item.description,
             price: item.price,
@@ -46,7 +45,6 @@ export const useMenuItems = () => {
         // Add meal2 options
         for (const item of day.meal2Options) {
           menuItemsToInsert.push({
-            id: item.id.startsWith('new_') ? undefined : item.id,
             name: item.name,
             description: item.description,
             price: item.price,
@@ -60,7 +58,6 @@ export const useMenuItems = () => {
         // Add side options
         for (const item of day.sideOptions) {
           menuItemsToInsert.push({
-            id: item.id.startsWith('new_') ? undefined : item.id,
             name: item.name,
             description: item.description,
             price: item.price,
