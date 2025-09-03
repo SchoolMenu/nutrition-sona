@@ -1,0 +1,63 @@
+import { Bell, User, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import sonaLogo from "@/assets/sona-logo.png";
+
+interface HeaderProps {
+  onMenuToggle?: () => void;
+  userName?: string;
+  notificationCount?: number;
+}
+
+export const Header = ({ onMenuToggle, userName = "Оксана", notificationCount = 2 }: HeaderProps) => {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-card-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
+      <div className="container flex h-16 items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden hover:bg-secondary"
+            onClick={onMenuToggle}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-2">
+            <img src={sonaLogo} alt="SONA" className="h-8 w-8" />
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-semibold text-foreground">СОНА</h1>
+              <p className="text-xs text-muted-foreground">Шкільне харчування</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="relative hover:bg-secondary">
+            <Bell className="h-5 w-5" />
+            {notificationCount > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+              >
+                {notificationCount}
+              </Badge>
+            )}
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/placeholder-avatar.png" alt={userName} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                {userName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="hidden sm:block text-sm font-medium text-foreground">
+              {userName}
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
