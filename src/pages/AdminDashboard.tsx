@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Layout/Header";
 import { MenuManager } from "@/components/Admin/MenuManager";
 import { Analytics } from "@/components/Admin/Analytics";
@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, Users, DollarSign, Calendar } from "lucide-react";
 import { mockMenuData, DayMenu } from "@/data/menuData";
+import { useMenuItems } from "@/hooks/useMenuItems";
 
 // Mock analytics data
 const mockAnalytics = {
@@ -45,6 +46,30 @@ const mockAnalytics = {
 
 const AdminDashboard = () => {
   const [weekMenu, setWeekMenu] = useState<DayMenu[]>(mockMenuData.days);
+  const { loading, loadMenuFromDatabase } = useMenuItems();
+  
+  useEffect(() => {
+    const loadMenu = async () => {
+      // Calculate current week dates
+      const today = new Date();
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay() + 1); // Monday
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 4); // Friday
+      
+      const weekStartStr = weekStart.toISOString().split('T')[0];
+      const weekEndStr = weekEnd.toISOString().split('T')[0];
+      
+      const dbMenu = await loadMenuFromDatabase(weekStartStr, weekEndStr);
+      
+      if (dbMenu && dbMenu.length > 0) {
+        setWeekMenu(dbMenu);
+      }
+      // If no database data, keep using mock data (already set in useState)
+    };
+    
+    loadMenu();
+  }, [loadMenuFromDatabase]);
   
   const handleUpdateMenu = (dayIndex: number, updatedDay: DayMenu) => {
     const newWeekMenu = [...weekMenu];
