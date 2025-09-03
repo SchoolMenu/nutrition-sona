@@ -1,29 +1,33 @@
-import { useState } from "react";
-import { RoleSelector } from "@/components/RoleSelector";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import Dashboard from "./Dashboard";
 import KitchenDashboard from "./KitchenDashboard";
 import AdminDashboard from "./AdminDashboard";
 
 const Index = () => {
-  const [selectedRole, setSelectedRole] = useState<'parent' | 'kitchen' | 'admin' | null>(null);
+  const { user, profile, loading } = useAuth();
 
-  const handleRoleSelect = (role: 'parent' | 'kitchen' | 'admin') => {
-    setSelectedRole(role);
-  };
-
-  if (!selectedRole) {
-    return <RoleSelector onRoleSelect={handleRoleSelect} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
-  switch (selectedRole) {
+  if (!user || !profile) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  switch (profile.role) {
     case 'parent':
       return <Dashboard />;
-    case 'kitchen':
+    case 'cook':
       return <KitchenDashboard />;
     case 'admin':
       return <AdminDashboard />;
     default:
-      return <RoleSelector onRoleSelect={handleRoleSelect} />;
+      return <Navigate to="/auth" replace />;
   }
 };
 

@@ -1,17 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Clock, AlertTriangle } from "lucide-react";
-import { mockMenuData, type DayMenu } from "@/data/menuData";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Check } from "lucide-react";
+import { mockMenuData, type MenuItem } from "@/data/menuData";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
-interface MenuViewProps {
-  selectedChild?: string;
+interface Child {
+  id: string;
+  name: string;
+  grade: string;
+  allergies: string[];
 }
 
-export const MenuView = ({ selectedChild }: MenuViewProps) => {
+interface MenuViewProps {
+  // Remove unused prop since we're handling child selection internally
+}
+
+export const MenuView = ({}: MenuViewProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [children, setChildren] = useState<Child[]>([]);
+  const [currentChild, setCurrentChild] = useState<string>('');
+  const [selectedMeals, setSelectedMeals] = useState<Record<string, string[]>>({});
+  const [loading, setLoading] = useState(false);
+  
   const currentDay = mockMenuData.days[selectedDayIndex];
+
+  useEffect(() => {
+    if (user) {
+      fetchChildren();
+    }
+  }, [user]);
+
+  const fetchChildren = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('children')
+      .select('*')
+      .eq('parent_id', user.id);
+    
+    if (error) {
+      toast({
+        title: 'Помилка',
+        description: 'Не вдалося завантажити дітей',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    setChildren(data || []);
+    if (data && data.length > 0) {
+      setCurrentChild(data[0].id);
+    }
+  };
 
   const navigateDay = (direction: 'prev' | 'next') => {
     if (direction === 'prev' && selectedDayIndex > 0) {
@@ -23,8 +70,96 @@ export const MenuView = ({ selectedChild }: MenuViewProps) => {
 
   const formatPrice = (price: number) => `${price} грн`;
 
+  const handleMealSelection = async (meal: MenuItem, mealType: string) => {
+    if (!currentChild) {
+      toast({
+        title: 'Помилка',
+        description: 'Оберіть дитину',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    // Remove existing order for this day and meal type
+    await supabase
+      .from('meal_orders')
+      .delete()
+      .eq('child_id', currentChild)
+      .eq('meal_date', currentDay.date)
+      .eq('meal_type', mealType);
+
+    // Add new order
+    const { error } = await supabase
+      .from('meal_orders')
+      .insert({
+        child_id: currentChild,
+        meal_id: meal.id,
+        meal_date: currentDay.date,
+        meal_type: mealType
+      });
+
+    if (error) {
+      toast({
+        title: 'Помилка',
+        description: 'Не вдалося зберегти замовлення',
+        variant: 'destructive'
+      });
+    } else {
+      toast({
+        title: 'Успіх',
+        description: `Обрано: ${meal.name}`,
+      });
+      
+      // Update local state
+      setSelectedMeals(prev => ({
+        ...prev,
+        [`${currentDay.date}-${mealType}`]: [meal.id]
+      }));
+    }
+
+    setLoading(false);
+  };
+
+  const isChildAllergic = (meal: MenuItem, child: Child) => {
+    return meal.allergens.some(allergen => child.allergies.includes(allergen));
+  };
+
+  const selectedChildObj = children.find(c => c.id === currentChild);
+
+  if (children.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <h2 className="text-xl font-semibold mb-2">Немає доданих дітей</h2>
+        <p className="text-muted-foreground">Додайте дитину в профілі для замовлення обідів</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
+      {/* Child Selection */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Оберіть дитину</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Select value={currentChild} onValueChange={setCurrentChild}>
+            <SelectTrigger>
+              <SelectValue placeholder="Оберіть дитину" />
+            </SelectTrigger>
+            <SelectContent>
+              {children.map((child) => (
+                <SelectItem key={child.id} value={child.id}>
+                  {child.name} - {child.grade} клас
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+
       {/* Week Header */}
       <Card>
         <CardHeader className="pb-3">
@@ -93,8 +228,24 @@ export const MenuView = ({ selectedChild }: MenuViewProps) => {
                     ))}
                   </div>
                 )}
-                <Button variant="outline" size="sm" className="w-full">
-                  Вибрати для дитини
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => handleMealSelection(meal, 'meal1')}
+                  disabled={loading || (selectedChildObj && isChildAllergic(meal, selectedChildObj))}
+                >
+                  {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                  ) : selectedMeals[`${currentDay.date}-meal1`]?.includes(meal.id) ? (
+                    <Check className="h-4 w-4 mr-2" />
+                  ) : null}
+                  {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
+                    ? 'Алергія' 
+                    : selectedMeals[`${currentDay.date}-meal1`]?.includes(meal.id)
+                    ? 'Обрано'
+                    : 'Вибрати'
+                  }
                 </Button>
               </div>
             ))}
@@ -127,8 +278,24 @@ export const MenuView = ({ selectedChild }: MenuViewProps) => {
                     ))}
                   </div>
                 )}
-                <Button variant="outline" size="sm" className="w-full">
-                  Вибрати для дитини
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => handleMealSelection(meal, 'meal2')}
+                  disabled={loading || (selectedChildObj && isChildAllergic(meal, selectedChildObj))}
+                >
+                  {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                  ) : selectedMeals[`${currentDay.date}-meal2`]?.includes(meal.id) ? (
+                    <Check className="h-4 w-4 mr-2" />
+                  ) : null}
+                  {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
+                    ? 'Алергія' 
+                    : selectedMeals[`${currentDay.date}-meal2`]?.includes(meal.id)
+                    ? 'Обрано'
+                    : 'Вибрати'
+                  }
                 </Button>
               </div>
             ))}
@@ -162,9 +329,25 @@ export const MenuView = ({ selectedChild }: MenuViewProps) => {
                       ))}
                     </div>
                   )}
-                  <Button variant="outline" size="sm" className="w-full">
-                    Вибрати для дитини
-                  </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => handleMealSelection(meal, 'side')}
+                  disabled={loading || (selectedChildObj && isChildAllergic(meal, selectedChildObj))}
+                >
+                  {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                  ) : selectedMeals[`${currentDay.date}-side`]?.includes(meal.id) ? (
+                    <Check className="h-4 w-4 mr-2" />
+                  ) : null}
+                  {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
+                    ? 'Алергія' 
+                    : selectedMeals[`${currentDay.date}-side`]?.includes(meal.id)
+                    ? 'Обрано'
+                    : 'Вибрати'
+                  }
+                </Button>
                 </div>
               ))}
             </CardContent>
