@@ -71,6 +71,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_meal_orders_child"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "meal_orders_child_id_fkey"
             columns: ["child_id"]
             isOneToOne: false
