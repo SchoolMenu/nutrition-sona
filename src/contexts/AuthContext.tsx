@@ -89,28 +89,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = async (email: string, password: string, fullName: string, role: 'parent' | 'cook' | 'admin') => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl
-      }
-    });
-
-    if (!error && data.user) {
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: data.user.id,
+        emailRedirectTo: redirectUrl,
+        data: {
           full_name: fullName,
           role: role
-        });
-
-      if (profileError) {
-        return { error: profileError };
+        }
       }
-    }
+    });
 
     return { error };
   };
