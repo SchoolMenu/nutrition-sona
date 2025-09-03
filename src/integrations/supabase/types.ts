@@ -14,98 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      children: {
-        Row: {
-          allergies: string[] | null
-          created_at: string
-          grade: string
-          id: string
-          name: string
-          parent_id: string
-          updated_at: string
-        }
-        Insert: {
-          allergies?: string[] | null
-          created_at?: string
-          grade: string
-          id?: string
-          name: string
-          parent_id: string
-          updated_at?: string
-        }
-        Update: {
-          allergies?: string[] | null
-          created_at?: string
-          grade?: string
-          id?: string
-          name?: string
-          parent_id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      meal_orders: {
-        Row: {
-          child_id: string
-          created_at: string
-          id: string
-          meal_date: string
-          meal_id: string
-          meal_type: string
-        }
-        Insert: {
-          child_id: string
-          created_at?: string
-          id?: string
-          meal_date: string
-          meal_id: string
-          meal_type: string
-        }
-        Update: {
-          child_id?: string
-          created_at?: string
-          id?: string
-          meal_date?: string
-          meal_id?: string
-          meal_type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "meal_orders_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "children"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profiles: {
-        Row: {
-          created_at: string
-          full_name: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          full_name: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          full_name?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
@@ -114,7 +23,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      app_role: "parent" | "cook" | "admin"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -241,8 +150,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["parent", "cook", "admin"],
-    },
+    Enums: {},
   },
 } as const
