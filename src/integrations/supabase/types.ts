@@ -86,6 +86,45 @@ export type Database = {
           },
         ]
       }
+      menu_items: {
+        Row: {
+          allergens: string[] | null
+          category: string
+          created_at: string
+          day_name: string
+          description: string | null
+          id: string
+          menu_date: string
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          allergens?: string[] | null
+          category: string
+          created_at?: string
+          day_name: string
+          description?: string | null
+          id?: string
+          menu_date: string
+          name: string
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          allergens?: string[] | null
+          category?: string
+          created_at?: string
+          day_name?: string
+          description?: string | null
+          id?: string
+          menu_date?: string
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

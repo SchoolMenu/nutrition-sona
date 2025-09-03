@@ -9,8 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Edit, Trash2, Save, Calendar } from "lucide-react";
+import { Plus, Edit, Trash2, Save, Calendar, Loader2 } from "lucide-react";
 import { MenuItem, DayMenu, allergensList } from "@/data/menuData";
+import { useMenuItems } from "@/hooks/useMenuItems";
 
 interface MenuManagerProps {
   weekMenu: DayMenu[];
@@ -21,6 +22,7 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
   const [selectedDay, setSelectedDay] = useState(0);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { saving, saveMenuToDatabase } = useMenuItems();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,6 +31,10 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
     allergens: [] as string[],
     category: "meal1" as 'meal1' | 'meal2' | 'side'
   });
+
+  const handleSaveToDatabase = async () => {
+    await saveMenuToDatabase(weekMenu);
+  };
 
   const openEditDialog = (item?: MenuItem) => {
     if (item) {
@@ -165,9 +171,18 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
           <h2 className="text-2xl font-bold text-foreground">Управління меню</h2>
           <p className="text-muted-foreground">Редагування тижневого меню школи</p>
         </div>
-        <Button variant="default">
-          <Save className="h-4 w-4 mr-2" />
-          Зберегти зміни
+        <Button variant="default" onClick={handleSaveToDatabase} disabled={saving}>
+          {saving ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Збереження...
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              Зберегти зміни
+            </>
+          )}
         </Button>
       </div>
 
