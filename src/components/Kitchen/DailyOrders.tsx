@@ -23,10 +23,9 @@ interface DishSummary {
 interface DailyOrdersProps {
   date: string;
   orders: StudentOrder[];
-  onMarkReady: (dishName: string) => void;
 }
 
-export const DailyOrders = ({ date, orders, onMarkReady }: DailyOrdersProps) => {
+export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
   // Group orders by dish
   const getDishSummary = (): DishSummary[] => {
     const dishMap = new Map<string, string[]>();
@@ -155,15 +154,6 @@ export const DailyOrders = ({ date, orders, onMarkReady }: DailyOrdersProps) => 
                   )}
                 </div>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => onMarkReady(dish.dishName)}
-                className="shrink-0"
-              >
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Готово
-              </Button>
             </div>
           ))}
         </CardContent>

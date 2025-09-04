@@ -146,7 +146,6 @@ const KitchenDashboard = () => {
           <DailyOrders 
             date={selectedDate}
             orders={orders}
-            onMarkReady={handleMarkReady}
           />
         )}
       </main>
