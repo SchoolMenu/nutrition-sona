@@ -39,9 +39,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Initializing auth context...');
+    
     // Set up auth state listener FIRST (must be synchronous to prevent deadlock)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -49,9 +52,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Error getting session:', error);
+      } else {
+        console.log('Initial session check:', session?.user?.email);
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
+      setLoading(false);
+    }).catch((err) => {
+      console.error('Session check failed:', err);
       setLoading(false);
     });
 
@@ -62,13 +74,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchProfile = async () => {
       if (user) {
-        const { data: profileData } = await supabase
-          .from('profiles' as any)
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
+        console.log('Fetching profile for user:', user.id);
         
-        setProfile(profileData as any);
+        try {
+          const { data: profileData, error } = await supabase
+            .from('profiles' as any)
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching profile:', error);
+            if (error.code === '42501' || error.code === '42P01') {
+              console.log('Profile table might not exist or RLS policy issues');
+            }
+          } else {
+            console.log('Profile fetched successfully:', profileData);
+          }
+          
+          setProfile(profileData as any);
+        } catch (err) {
+          console.error('Profile fetch failed:', err);
+          setProfile(null);
+        }
       } else {
         setProfile(null);
       }
@@ -97,11 +125,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    return { error };
+    console.log('Attempting sign in for:', email);
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        console.error('Sign in error:', error);
+      } else {
+        console.log('Sign in successful');
+      }
+      
+      return { error };
+    } catch (err) {
+      console.error('Sign in failed:', err);
+      return { error: err };
+    }
   };
 
   const signOut = async () => {

@@ -5,6 +5,12 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://njvaqexxiwuhgvhwrduf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qdmFxZXh4aXd1aGd2aHdyZHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MDgwOTAsImV4cCI6MjA3MjQ4NDA5MH0.4u5DDszUQEyhNv8dt-Us_5DtybsPp2UH9v6kzGxT5yg";
 
+console.log('Supabase client initialization:', { 
+  url: SUPABASE_URL, 
+  hasKey: !!SUPABASE_PUBLISHABLE_KEY,
+  keyPrefix: SUPABASE_PUBLISHABLE_KEY?.substring(0, 20) + '...'
+});
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
@@ -14,4 +20,15 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     autoRefreshToken: true,
   }
+});
+
+// Test connection on initialization
+supabase.auth.getSession().then(({ data, error }) => {
+  if (error) {
+    console.error('Supabase connection error:', error);
+  } else {
+    console.log('Supabase connection successful, session:', data.session?.user?.email || 'No active session');
+  }
+}).catch(err => {
+  console.error('Supabase initialization failed:', err);
 });
