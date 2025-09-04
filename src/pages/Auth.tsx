@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ChefHat, Shield, Users } from 'lucide-react';
 
 const Auth = () => {
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, profile, signIn, signUp, loading } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,7 +31,8 @@ const Auth = () => {
     );
   }
 
-  if (user) {
+  // Redirect if user exists and profile loading is complete (profile might be null for new users)
+  if (user && !loading) {
     return <Navigate to="/" replace />;
   }
 
