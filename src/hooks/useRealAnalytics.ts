@@ -67,17 +67,24 @@ export const useRealAnalytics = () => {
 
         if (ordersError) throw ordersError;
 
-        // Get all children with their parent profiles
+        // Get all children
         const { data: children, error: childrenError } = await supabase
           .from('children')
-          .select(`
-            *,
-            profiles!children_parent_id_fkey (
-              full_name
-            )
-          `);
+          .select('*');
 
         if (childrenError) throw childrenError;
+
+        // Get all parent profiles
+        const parentIds = [...new Set((children || []).map(child => child.parent_id))];
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name')
+          .in('user_id', parentIds);
+
+        if (profilesError) throw profilesError;
+
+        // Create a map for quick profile lookup
+        const profileMap = new Map((profiles || []).map(profile => [profile.user_id, profile.full_name]));
 
         // Calculate analytics
         const totalOrders = orders?.length || 0;
@@ -125,7 +132,7 @@ export const useRealAnalytics = () => {
             grade: child.grade,
             ordersCount: childOrders.length,
             totalAmount,
-            parentName: (child as any).profiles?.full_name || 'Невідомо'
+            parentName: profileMap.get(child.parent_id) || 'Невідомо'
           };
         }).filter(student => student.ordersCount > 0)
           .sort((a, b) => b.totalAmount - a.totalAmount);
