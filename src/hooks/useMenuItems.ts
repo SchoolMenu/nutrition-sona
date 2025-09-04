@@ -9,11 +9,14 @@ export const useMenuItems = () => {
   const { toast } = useToast();
 
   const saveMenuToDatabase = async (weekMenu: DayMenu[]) => {
+    console.log('Starting save operation with weekMenu:', weekMenu);
     setSaving(true);
     try {
       // First, delete existing menu items for this week
       const weekStart = new Date(weekMenu[0].date);
       const weekEnd = new Date(weekMenu[weekMenu.length - 1].date);
+      
+      console.log('Week range:', weekStart.toISOString().split('T')[0], 'to', weekEnd.toISOString().split('T')[0]);
       
       const { error: deleteError } = await supabase
         .from('menu_items')
@@ -25,6 +28,7 @@ export const useMenuItems = () => {
 
       // Prepare all menu items for insertion
       const menuItemsToInsert = [];
+      console.log('Preparing to insert items for', weekMenu.length, 'days');
       
       for (const day of weekMenu) {
         const dayDate = new Date(day.date).toISOString().split('T')[0];
@@ -70,6 +74,7 @@ export const useMenuItems = () => {
       }
 
       // Insert all menu items
+      console.log('Inserting', menuItemsToInsert.length, 'items:', menuItemsToInsert);
       const { error: insertError } = await supabase
         .from('menu_items')
         .insert(menuItemsToInsert);
