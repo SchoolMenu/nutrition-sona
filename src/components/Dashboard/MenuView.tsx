@@ -18,9 +18,10 @@ interface Child {
 
 interface MenuViewProps {
   selectedChildId?: string;
+  onOrdersChange?: () => void;
 }
 
-export const MenuView = ({ selectedChildId }: MenuViewProps) => {
+export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => {
   const { user } = useAuth();
   const { loadMenuFromDatabase } = useMenuItems();
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
@@ -170,6 +171,11 @@ export const MenuView = ({ selectedChildId }: MenuViewProps) => {
         ...prev,
         [`${currentDay.date}-${mealType}`]: [meal.id]
       }));
+      
+      // Refresh statistics
+      if (onOrdersChange) {
+        onOrdersChange();
+      }
     }
 
     setLoading(false);

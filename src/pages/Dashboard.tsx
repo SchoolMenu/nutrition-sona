@@ -8,6 +8,7 @@ import { MenuView } from "@/components/Dashboard/MenuView";
 import { ChildProfile } from "@/components/Dashboard/ChildProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOrderStatistics } from "@/hooks/useOrderStatistics";
 
 interface Child {
   id: string;
@@ -20,6 +21,7 @@ interface Child {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { stats, loading: statsLoading, refetch } = useOrderStatistics();
   const [activeTab, setActiveTab] = useState("home");
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,6 +70,11 @@ const Dashboard = () => {
     setActiveTab("menu");
   };
 
+  const handleStatsRefresh = () => {
+    refetch();
+    fetchChildren();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header 
@@ -85,10 +92,12 @@ const Dashboard = () => {
             />
             
             <QuickStats 
-              weeklySpent={450}
-              mealsThisWeek={8}
-              upcomingMeals={6}
-              monthlyBudget={1500}
+              weeklySpent={stats.weeklySpent}
+              mealsThisWeek={stats.mealsThisWeek}
+              upcomingMeals={stats.upcomingMeals}
+              monthlySpent={stats.monthlySpent}
+              monthlyBudget={stats.monthlyBudget}
+              remainingBudget={stats.remainingBudget}
             />
             
             {loading ? (
@@ -107,7 +116,7 @@ const Dashboard = () => {
         )}
 
         {activeTab === "menu" && (
-          <MenuView selectedChildId={selectedChildId} />
+          <MenuView selectedChildId={selectedChildId} onOrdersChange={handleStatsRefresh} />
         )}
 
         {activeTab === "profile" && (

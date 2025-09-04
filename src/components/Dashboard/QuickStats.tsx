@@ -5,15 +5,20 @@ interface QuickStatsProps {
   weeklySpent: number;
   mealsThisWeek: number;
   upcomingMeals: number;
+  monthlySpent: number;
   monthlyBudget: number;
+  remainingBudget: number;
 }
 
 export const QuickStats = ({ 
   weeklySpent, 
   mealsThisWeek, 
   upcomingMeals, 
-  monthlyBudget 
+  monthlySpent,
+  monthlyBudget,
+  remainingBudget
 }: QuickStatsProps) => {
+  const budgetPercentageRemaining = monthlyBudget > 0 ? Math.round((remainingBudget / monthlyBudget) * 100) : 0;
   const stats = [
     {
       title: "Цього тижня",
@@ -37,11 +42,11 @@ export const QuickStats = ({
       changeType: "neutral" as const
     },
     {
-      title: "Місячний бюджет",
-      value: `₴${monthlyBudget}`,
+      title: "Витрачено за місяць",
+      value: `₴${monthlySpent}`,
       icon: TrendingUp,
-      change: "Залишилося 67%",
-      changeType: "neutral" as const
+      change: `Залишилося ₴${remainingBudget}`,
+      changeType: remainingBudget > monthlyBudget * 0.2 ? "neutral" : "decrease" as const
     }
   ];
 
@@ -60,6 +65,8 @@ export const QuickStats = ({
             <p className={`text-xs mt-1 ${
               stat.changeType === 'increase' 
                 ? 'text-success' 
+                : stat.changeType === 'decrease'
+                ? 'text-destructive'
                 : 'text-muted-foreground'
             }`}>
               {stat.change}
