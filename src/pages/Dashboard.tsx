@@ -15,7 +15,6 @@ interface Child {
   name: string;
   grade: string;
   allergies: string[];
-  todayMeal?: string;
   hasOrderForWeek: boolean;
 }
 
@@ -47,14 +46,13 @@ const Dashboard = () => {
       return;
     }
     
-    // Add mock meal info for display
-    const childrenWithMeals = (data || []).map((child: any) => ({
+    // Add mock order status for display
+    const childrenWithStatus = (data || []).map((child: any) => ({
       ...child,
-      todayMeal: child.name.includes('Олексій') ? "Борщ з сметаною" : "Котлета з картоплею",
       hasOrderForWeek: child.name.includes('Олексій')
     }));
     
-    setChildren(childrenWithMeals);
+    setChildren(childrenWithStatus);
     setLoading(false);
   };
 
