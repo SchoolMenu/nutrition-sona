@@ -87,7 +87,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
     try {
       const { data, error } = await supabase
         .from('meal_orders' as any)
-        .select('meal_id, meal_type')
+        .select('meal_name, meal_type')
         .eq('child_id', currentChild)
         .eq('meal_date', currentDay.date);
 
@@ -100,7 +100,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
         if (!newSelectedMeals[key]) {
           newSelectedMeals[key] = [];
         }
-        newSelectedMeals[key].push(order.meal_id);
+        newSelectedMeals[key].push(order.meal_name);
       });
 
       setSelectedMeals(prev => ({
@@ -160,7 +160,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
       .from('meal_orders' as any)
       .insert({
         child_id: currentChild,
-        meal_id: meal.id,
+        meal_name: meal.name,
         meal_date: currentDay.date,
         meal_type: mealType
       } as any);
@@ -169,7 +169,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
       // Update local state
       setSelectedMeals(prev => ({
         ...prev,
-        [`${currentDay.date}-${mealType}`]: [meal.id]
+        [`${currentDay.date}-${mealType}`]: [meal.name]
       }));
       
       // Refresh statistics with small delay to ensure DB is updated
@@ -298,12 +298,12 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                 >
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                  ) : selectedMeals[`${currentDay.date}-meal1`]?.includes(meal.id) ? (
+                  ) : selectedMeals[`${currentDay.date}-meal1`]?.includes(meal.name) ? (
                     <Check className="h-4 w-4 mr-2" />
                   ) : null}
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
                     ? 'Алергія' 
-                    : selectedMeals[`${currentDay.date}-meal1`]?.includes(meal.id)
+                    : selectedMeals[`${currentDay.date}-meal1`]?.includes(meal.name)
                     ? 'Обрано'
                     : 'Вибрати'
                   }
@@ -348,12 +348,12 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                 >
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                  ) : selectedMeals[`${currentDay.date}-meal2`]?.includes(meal.id) ? (
+                  ) : selectedMeals[`${currentDay.date}-meal2`]?.includes(meal.name) ? (
                     <Check className="h-4 w-4 mr-2" />
                   ) : null}
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
                     ? 'Алергія' 
-                    : selectedMeals[`${currentDay.date}-meal2`]?.includes(meal.id)
+                    : selectedMeals[`${currentDay.date}-meal2`]?.includes(meal.name)
                     ? 'Обрано'
                     : 'Вибрати'
                   }
@@ -399,12 +399,12 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                 >
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                  ) : selectedMeals[`${currentDay.date}-side`]?.includes(meal.id) ? (
+                  ) : selectedMeals[`${currentDay.date}-side`]?.includes(meal.name) ? (
                     <Check className="h-4 w-4 mr-2" />
                   ) : null}
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
                     ? 'Алергія' 
-                    : selectedMeals[`${currentDay.date}-side`]?.includes(meal.id)
+                    : selectedMeals[`${currentDay.date}-side`]?.includes(meal.name)
                     ? 'Обрано'
                     : 'Вибрати'
                   }

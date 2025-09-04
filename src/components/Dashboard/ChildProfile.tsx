@@ -8,7 +8,6 @@ import { EditChildDialog } from "./EditChildDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, getDay } from "date-fns";
 import { uk } from "date-fns/locale";
-import { mockMenuData } from "@/data/menuData";
 
 interface Child {
   id: string;
@@ -22,7 +21,7 @@ interface Child {
 interface MealOrder {
   id: string;
   meal_date: string;
-  meal_id: string;
+  meal_name: string;
   meal_type: string;
 }
 
@@ -74,16 +73,7 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
     }
   };
 
-  // Get meal name from mock data
-  const getMealName = (mealId: string): string => {
-    // Search through all days and meal options to find the meal by ID
-    for (const day of mockMenuData.days) {
-      const allMeals = [...day.meal1Options, ...day.meal2Options, ...day.sideOptions];
-      const meal = allMeals.find(m => m.id === mealId);
-      if (meal) return meal.name;
-    }
-    return `Невідома страва (${mealId})`;
-  };
+  // Remove getMealName function since we now store names directly
 
   // Group orders by date
   const getOrdersForDay = (date: Date) => {
@@ -198,7 +188,7 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
                               <div key={order.id} className="flex items-center gap-2 text-sm">
                                 <ChefHat className="h-3 w-3 text-muted-foreground" />
                                 <span className="text-muted-foreground capitalize">{order.meal_type}:</span>
-                                <span>{getMealName(order.meal_id)}</span>
+                                <span>{order.meal_name}</span>
                               </div>
                             ))}
                           </div>

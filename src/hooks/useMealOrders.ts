@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { mockMenuData } from '@/data/menuData';
 
 export interface MealOrderWithDetails {
   id: string;
   child_id: string;
   meal_date: string;
-  meal_id: string;
+  meal_name: string;
   meal_type: string;
   child_name: string;
   child_grade: string;
@@ -30,16 +29,6 @@ export const useMealOrders = (date: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Create a mapping from meal ID to dish name
-  const getMealName = (mealId: string): string => {
-    for (const day of mockMenuData.days) {
-      const allMeals = [...day.meal1Options, ...day.meal2Options, ...day.sideOptions];
-      const meal = allMeals.find(m => m.id === mealId);
-      if (meal) return meal.name;
-    }
-    return `Unknown dish (${mealId})`;
-  };
-
   useEffect(() => {
     const fetchMealOrders = async () => {
       setLoading(true);
@@ -53,7 +42,7 @@ export const useMealOrders = (date: string) => {
             id,
             child_id,
             meal_date,
-            meal_id,
+            meal_name,
             meal_type,
             children!fk_meal_orders_child (
               name,
@@ -89,7 +78,7 @@ export const useMealOrders = (date: string) => {
           if (!childData) return;
 
           const childId = order.child_id;
-          const dishName = getMealName(order.meal_id);
+          const dishName = order.meal_name;
 
           if (!ordersByChild.has(childId)) {
             ordersByChild.set(childId, {

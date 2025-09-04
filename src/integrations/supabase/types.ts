@@ -50,7 +50,7 @@ export type Database = {
           created_at: string
           id: string
           meal_date: string
-          meal_id: string
+          meal_name: string
           meal_type: string
         }
         Insert: {
@@ -58,7 +58,7 @@ export type Database = {
           created_at?: string
           id?: string
           meal_date: string
-          meal_id: string
+          meal_name: string
           meal_type: string
         }
         Update: {
@@ -66,7 +66,7 @@ export type Database = {
           created_at?: string
           id?: string
           meal_date?: string
-          meal_id?: string
+          meal_name?: string
           meal_type?: string
         }
         Relationships: [

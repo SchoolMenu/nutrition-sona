@@ -24,14 +24,25 @@ export const useOrderStatistics = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // Get meal price from mock data (fallback)
-  const getMealPrice = (mealId: string): number => {
+  // Get meal price from meal name
+  const getMealPrice = (mealName: string): number => {
+    // Map meal names to prices from mock data
     for (const day of mockMenuData.days) {
       const allMeals = [...day.meal1Options, ...day.meal2Options, ...day.sideOptions];
-      const meal = allMeals.find(m => m.id === mealId);
+      const meal = allMeals.find(m => m.name === mealName);
       if (meal) return meal.price;
     }
-    return 0; // Default if not found
+    
+    // Default prices for unknown meals
+    const defaultPrices: Record<string, number> = {
+      'Борщ український з сметаною': 45,
+      'Котлета куряча з картопляним пюре': 55,
+      'Салат з свіжих овочів': 20,
+      'Голубці з м\'ясом': 60,
+      'Винегрет': 25
+    };
+    
+    return defaultPrices[mealName] || 40; // Default meal price
   };
 
   useEffect(() => {
@@ -101,7 +112,7 @@ export const useOrderStatistics = () => {
 
       // Calculate weekly stats
       const weeklySpent = (weekOrders || []).reduce((sum, order) => {
-        return sum + getMealPrice(order.meal_id);
+        return sum + getMealPrice(order.meal_name);
       }, 0);
 
       const mealsThisWeek = (weekOrders || []).length;
@@ -115,7 +126,7 @@ export const useOrderStatistics = () => {
 
       // Calculate monthly stats
       const monthlySpent = (monthOrders || []).reduce((sum, order) => {
-        return sum + getMealPrice(order.meal_id);
+        return sum + getMealPrice(order.meal_name);
       }, 0);
 
       const monthlyBudget = 1500; // This could be fetched from user preferences
