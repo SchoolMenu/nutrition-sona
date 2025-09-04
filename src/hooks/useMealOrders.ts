@@ -36,22 +36,16 @@ export const useMealOrders = (date: string) => {
       setError(null);
 
       try {
-        // Use direct query with explicit join
+        // Use the new database function which has SECURITY DEFINER
         const { data: rawOrders, error: ordersError } = await supabase
-          .from('meal_orders')
-          .select(`
-            *,
-            children (
-              name,
-              grade,
-              allergies
-            )
-          `)
-          .eq('meal_date', date);
+          .rpc('get_meal_orders_for_date', { 
+            target_date: date 
+          });
 
-        console.log('Query result:', rawOrders, 'Error:', ordersError);
+        console.log('Function result:', rawOrders, 'Error:', ordersError);
 
         if (ordersError) {
+          console.error('Function error:', ordersError);
           throw ordersError;
         }
 
@@ -62,7 +56,7 @@ export const useMealOrders = (date: string) => {
           return;
         }
 
-        // Process the orders
+        // Process the orders from the function result
         const processedOrders = processMealOrders(rawOrders);
         console.log('Processed orders:', processedOrders);
         setOrders(processedOrders);
@@ -91,21 +85,23 @@ export const useMealOrders = (date: string) => {
     }>();
 
     rawOrders.forEach((order: any) => {
-      const childData = order.children;
-      if (!childData) {
-        console.log('No child data for order:', order);
-        return;
-      }
-
       const childId = order.child_id;
       const dishName = order.meal_name;
+      const childName = order.child_name;
+      const childGrade = order.child_grade;
+      const childAllergies = order.child_allergies || [];
+
+      if (!childName) {
+        console.log('No child name for order:', order);
+        return;
+      }
 
       if (!ordersByChild.has(childId)) {
         ordersByChild.set(childId, {
           studentId: childId,
-          studentName: childData.name,
-          grade: `${childData.grade}`,
-          allergies: childData.allergies || [],
+          studentName: childName,
+          grade: `${childGrade}`,
+          allergies: childAllergies,
         });
       }
 

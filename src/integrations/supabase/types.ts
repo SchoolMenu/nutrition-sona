@@ -160,7 +160,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_meal_orders_for_date: {
+        Args: { target_date: string }
+        Returns: {
+          child_allergies: string[]
+          child_grade: string
+          child_id: string
+          child_name: string
+          id: string
+          meal_date: string
+          meal_name: string
+          meal_type: string
+        }[]
+      }
     }
     Enums: {
       app_role: "parent" | "cook" | "admin"
