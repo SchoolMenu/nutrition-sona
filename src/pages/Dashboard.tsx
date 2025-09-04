@@ -125,13 +125,6 @@ const Dashboard = () => {
             )}
           </div>
         )}
-
-        {activeTab === "settings" && (
-          <div className="text-center py-8">
-            <h2 className="text-xl font-semibold mb-2">Налаштування</h2>
-            <p className="text-muted-foreground">Розділ в розробці</p>
-          </div>
-        )}
       </main>
       
       <BottomNav 
