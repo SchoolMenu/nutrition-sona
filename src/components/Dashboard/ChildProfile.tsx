@@ -8,6 +8,7 @@ import { EditChildDialog } from "./EditChildDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, getDay } from "date-fns";
 import { uk } from "date-fns/locale";
+import { mockMenuData } from "@/data/menuData";
 
 interface Child {
   id: string;
@@ -73,27 +74,15 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
     }
   };
 
-  // Get meal name from mock data (similar to useMealOrders hook)
+  // Get meal name from mock data
   const getMealName = (mealId: string): string => {
-    // This should ideally come from menu items database, but using simplified approach
-    const mealNames: Record<string, string> = {
-      'meal1_monday': 'Борщ українській',
-      'meal2_monday': 'Котлета з картопляним пюре',
-      'side_monday': 'Салат з капусти',
-      'meal1_tuesday': 'Суп з курки',
-      'meal2_tuesday': 'Рисова каша з молоком',
-      'side_tuesday': 'Огіркова закуска',
-      'meal1_wednesday': 'Солянка м\'ясна',
-      'meal2_wednesday': 'Макарони з сиром',
-      'side_wednesday': 'Винегрет',
-      'meal1_thursday': 'Грибний суп',
-      'meal2_thursday': 'Гречка з гуляшем',
-      'side_thursday': 'Свіжі овочі',
-      'meal1_friday': 'Курячий бульйон',
-      'meal2_friday': 'Рибна котлета з рисом',
-      'side_friday': 'Маринована капуста'
-    };
-    return mealNames[mealId] || `Страва (${mealId})`;
+    // Search through all days and meal options to find the meal by ID
+    for (const day of mockMenuData.days) {
+      const allMeals = [...day.meal1Options, ...day.meal2Options, ...day.sideOptions];
+      const meal = allMeals.find(m => m.id === mealId);
+      if (meal) return meal.name;
+    }
+    return `Невідома страва (${mealId})`;
   };
 
   // Group orders by date
