@@ -21,6 +21,7 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<'parent' | 'cook' | 'admin'>('parent');
+  const [schoolCode, setSchoolCode] = useState('');
 
   if (loading) {
     return (
@@ -65,7 +66,7 @@ const Auth = () => {
 
     setIsLoading(true);
 
-    const { error } = await signUp(email, password, fullName, role);
+    const { error } = await signUp(email, password, fullName, role, schoolCode);
     
     if (error) {
       toast({
@@ -181,6 +182,18 @@ const Auth = () => {
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-school-code">Код школи</Label>
+                    <Input
+                      id="signup-school-code"
+                      type="text"
+                      value={schoolCode}
+                      onChange={(e) => setSchoolCode(e.target.value)}
+                      placeholder="Введіть код вашої школи"
                       required
                     />
                   </div>

@@ -7,6 +7,7 @@ interface Profile {
   user_id: string;
   full_name: string;
   role: 'parent' | 'cook' | 'admin';
+  school_code: string;
   created_at: string;
   updated_at: string;
 }
@@ -16,7 +17,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, role: 'parent' | 'cook' | 'admin') => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, role: 'parent' | 'cook' | 'admin', schoolCode: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     fetchProfile();
   }, [user]);
 
-  const signUp = async (email: string, password: string, fullName: string, role: 'parent' | 'cook' | 'admin') => {
+  const signUp = async (email: string, password: string, fullName: string, role: 'parent' | 'cook' | 'admin', schoolCode: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -86,7 +87,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
-          role: role
+          role: role,
+          school_code: schoolCode
         }
       }
     });
