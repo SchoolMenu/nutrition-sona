@@ -38,53 +38,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
+    // Set up auth state listener FIRST (must be synchronous to prevent deadlock)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch user profile
-          setTimeout(async () => {
-            const { data: profileData } = await supabase
-              .from('profiles' as any)
-              .select('*')
-              .eq('user_id', session.user.id)
-              .single();
-            
-            setProfile(profileData as any);
-            setLoading(false);
-          }, 0);
-        } else {
-          setProfile(null);
-          setLoading(false);
-        }
+        setLoading(false);
       }
     );
 
-    // Check for existing session
+    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        supabase
-          .from('profiles' as any)
-          .select('*')
-          .eq('user_id', session.user.id)
-          .single()
-          .then(({ data: profileData }) => {
-            setProfile(profileData as any);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Separate effect to fetch profile when user changes
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (user) {
+        const { data: profileData } = await supabase
+          .from('profiles' as any)
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        setProfile(profileData as any);
+      } else {
+        setProfile(null);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   const signUp = async (email: string, password: string, fullName: string, role: 'parent' | 'cook' | 'admin') => {
     const redirectUrl = `${window.location.origin}/`;
