@@ -41,7 +41,7 @@ export const useStudentOrderStats = (date: string = new Date().toISOString().spl
           .from('meal_orders')
           .select(`
             child_id,
-            meal_id,
+            meal_name,
             meal_type,
             children!fk_meal_orders_child (
               name,
@@ -60,8 +60,8 @@ export const useStudentOrderStats = (date: string = new Date().toISOString().spl
           if (order.children) {
             studentsWithOrdersSet.add(order.child_id);
             
-            // Get dish name from mock data (you may want to create a proper dish lookup)
-            const dishName = `Страва ${order.meal_id}`;
+            // Use actual meal name from the order
+            const dishName = order.meal_name;
             
             if (!dishChoiceMap.has(dishName)) {
               dishChoiceMap.set(dishName, { students: new Set(), studentDetails: [] });
