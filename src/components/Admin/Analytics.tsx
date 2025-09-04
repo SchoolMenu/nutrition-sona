@@ -74,56 +74,68 @@ export const Analytics = () => {
   };
 
   const exportToPDF = async () => {
-    const { jsPDF } = await import('jspdf');
-    const doc = new jsPDF();
-    
-    // Add Ukrainian font support (simplified approach)
-    doc.setFont('helvetica');
-    
-    let yPosition = 20;
-    const lineHeight = 7;
-    
-    // Title
-    doc.setFontSize(16);
-    doc.text('Звіт про аналітику харчування', 20, yPosition);
-    yPosition += lineHeight * 2;
-    
-    doc.setFontSize(10);
-    doc.text('Дата створення: ' + new Date().toLocaleDateString('uk-UA'), 20, yPosition);
-    yPosition += lineHeight * 2;
-    
-    // General Statistics
-    doc.setFontSize(12);
-    doc.text('ЗАГАЛЬНА СТАТИСТИКА', 20, yPosition);
-    yPosition += lineHeight;
-    
-    doc.setFontSize(10);
-    doc.text(`Загальний дохід: ₴${monthlyStats.totalRevenue}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Всього замовлень: ${monthlyStats.totalOrders}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Активних учнів: ${monthlyStats.activeStudents}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Середній чек: ₴${monthlyStats.averageOrderValue}`, 20, yPosition);
-    yPosition += lineHeight * 2;
-    
-    // Weekly Statistics
-    doc.setFontSize(12);
-    doc.text('ТИЖНЕВА СТАТИСТИКА', 20, yPosition);
-    yPosition += lineHeight;
-    
-    doc.setFontSize(10);
-    monthlyStats.weeklyData.forEach((week) => {
-      if (yPosition > 270) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      doc.text(`${week.week}: ${week.orders} замовлень, ₴${week.revenue}`, 20, yPosition);
+    try {
+      console.log('Starting PDF export...');
+      const { jsPDF } = await import('jspdf');
+      console.log('jsPDF imported successfully');
+      
+      const doc = new jsPDF();
+      
+      // Add Ukrainian font support (simplified approach)
+      doc.setFont('helvetica');
+      
+      let yPosition = 20;
+      const lineHeight = 7;
+      
+      // Title
+      doc.setFontSize(16);
+      doc.text('Звіт про аналітику харчування', 20, yPosition);
+      yPosition += lineHeight * 2;
+      
+      doc.setFontSize(10);
+      doc.text('Дата створення: ' + new Date().toLocaleDateString('uk-UA'), 20, yPosition);
+      yPosition += lineHeight * 2;
+      
+      // General Statistics
+      doc.setFontSize(12);
+      doc.text('ЗАГАЛЬНА СТАТИСТИКА', 20, yPosition);
       yPosition += lineHeight;
-    });
-    
-    // Save the PDF
-    doc.save(`analytics-report-${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      doc.setFontSize(10);
+      doc.text(`Загальний дохід: ₴${monthlyStats.totalRevenue}`, 20, yPosition);
+      yPosition += lineHeight;
+      doc.text(`Всього замовлень: ${monthlyStats.totalOrders}`, 20, yPosition);
+      yPosition += lineHeight;
+      doc.text(`Активних учнів: ${monthlyStats.activeStudents}`, 20, yPosition);
+      yPosition += lineHeight;
+      doc.text(`Середній чек: ₴${monthlyStats.averageOrderValue}`, 20, yPosition);
+      yPosition += lineHeight * 2;
+      
+      // Weekly Statistics
+      doc.setFontSize(12);
+      doc.text('ТИЖНЕВА СТАТИСТИКА', 20, yPosition);
+      yPosition += lineHeight;
+      
+      doc.setFontSize(10);
+      monthlyStats.weeklyData.forEach((week) => {
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(`${week.week}: ${week.orders} замовлень, ₴${week.revenue}`, 20, yPosition);
+        yPosition += lineHeight;
+      });
+      
+      // Save the PDF
+      const fileName = `analytics-report-${new Date().toISOString().split('T')[0]}.pdf`;
+      console.log('Attempting to save PDF as:', fileName);
+      doc.save(fileName);
+      console.log('PDF export completed successfully');
+      
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      alert('Помилка при експорті PDF: ' + error.message);
+    }
   };
 
   const exportBilling = () => {
