@@ -8,7 +8,7 @@ import { Users, CheckCircle, XCircle, TrendingUp, Calendar } from "lucide-react"
 import { useStudentOrderStats } from "@/hooks/useStudentOrderStats";
 
 export const StudentOrderStats = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState('2025-09-05'); // Date with test orders
   const { stats, loading, error } = useStudentOrderStats(selectedDate);
 
   if (loading) {
@@ -149,6 +149,9 @@ export const StudentOrderStats = () => {
               <XCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">Немає замовлень</h3>
               <p className="text-muted-foreground">На обрану дату ще немає замовлень від учнів</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Спробуйте обрати іншу дату. Тестові замовлення доступні на: 2025-09-04, 2025-09-05
+              </p>
             </div>
           )}
         </CardContent>
