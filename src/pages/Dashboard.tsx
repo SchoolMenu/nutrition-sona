@@ -19,7 +19,7 @@ interface Child {
 }
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { stats, loading: statsLoading, refetch } = useOrderStatistics();
   const [activeTab, setActiveTab] = useState("home");
   const [children, setChildren] = useState<Child[]>([]);
@@ -83,7 +83,7 @@ const Dashboard = () => {
         {activeTab === "home" && (
           <>
             <WelcomeCard 
-              parentName="Каріна"
+              parentName={profile?.full_name || "Батько"}
               childrenCount={children.length}
               pendingOrders={5}
             />
