@@ -116,6 +116,10 @@ const Dashboard = () => {
               <ChildProfile 
                 child={children.find(c => c.id === selectedChildId)} 
                 onBack={() => setActiveTab("home")}
+                onOrderMeals={() => {
+                  setActiveTab("menu");
+                }}
+                onChildUpdated={fetchChildren}
               />
             ) : (
               <div className="text-center py-8">

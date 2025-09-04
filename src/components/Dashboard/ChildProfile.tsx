@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, Calendar, AlertTriangle, User, GraduationCap, Shield } from "lucide-react";
+import { EditChildDialog } from "./EditChildDialog";
 
 interface Child {
   id: string;
@@ -16,9 +18,13 @@ interface Child {
 interface ChildProfileProps {
   child?: Child;
   onBack: () => void;
+  onOrderMeals?: () => void;
+  onChildUpdated?: () => void;
 }
 
-export const ChildProfile = ({ child, onBack }: ChildProfileProps) => {
+export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: ChildProfileProps) => {
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
   if (!child) {
     return (
       <div className="text-center py-8">
@@ -116,16 +122,32 @@ export const ChildProfile = ({ child, onBack }: ChildProfileProps) => {
         </CardHeader>
         <CardContent>
           <div className="flex gap-3">
-            <Button className="flex-1">
+            <Button 
+              className="flex-1"
+              onClick={onOrderMeals}
+            >
               <Calendar className="h-4 w-4 mr-2" />
               Замовити обіди
             </Button>
-            <Button variant="outline" className="flex-1">
+            <Button 
+              variant="outline" 
+              className="flex-1"
+              onClick={() => setEditDialogOpen(true)}
+            >
               Редагувати профіль
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {onChildUpdated && (
+        <EditChildDialog
+          child={child}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onChildUpdated={onChildUpdated}
+        />
+      )}
     </div>
   );
 };
