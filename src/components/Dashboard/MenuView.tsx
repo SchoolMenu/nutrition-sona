@@ -172,10 +172,12 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
         [`${currentDay.date}-${mealType}`]: [meal.id]
       }));
       
-      // Refresh statistics
-      if (onOrdersChange) {
-        onOrdersChange();
-      }
+      // Refresh statistics with small delay to ensure DB is updated
+      setTimeout(() => {
+        if (onOrdersChange) {
+          onOrdersChange();
+        }
+      }, 500);
     }
 
     setLoading(false);

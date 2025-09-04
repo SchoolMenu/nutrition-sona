@@ -37,6 +37,9 @@ export const useOrderStatistics = () => {
   useEffect(() => {
     if (user) {
       calculateStatistics();
+      // Set up interval to refresh every 30 seconds when there are active users
+      const interval = setInterval(calculateStatistics, 30000);
+      return () => clearInterval(interval);
     }
   }, [user]);
 
