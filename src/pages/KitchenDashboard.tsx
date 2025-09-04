@@ -15,6 +15,159 @@ const KitchenDashboard = () => {
   
   const { orders, loading, error } = useMealOrders(selectedDate);
 
+  const handlePrintList = () => {
+    // Create a printable version of the orders
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Список замовлень - ${new Date(selectedDate).toLocaleDateString('uk-UA')}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 20px;
+              color: #000;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #000;
+              padding-bottom: 10px;
+            }
+            .stats {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 20px;
+              padding: 10px;
+              background-color: #f5f5f5;
+            }
+            .dishes-section, .allergies-section {
+              margin-bottom: 30px;
+            }
+            .dish-item {
+              margin-bottom: 15px;
+              padding: 10px;
+              border: 1px solid #ddd;
+              border-radius: 5px;
+            }
+            .dish-name {
+              font-weight: bold;
+              font-size: 16px;
+              margin-bottom: 5px;
+            }
+            .dish-count {
+              color: #666;
+              margin-bottom: 8px;
+            }
+            .students-list {
+              font-size: 14px;
+            }
+            .allergy-item {
+              margin-bottom: 10px;
+              padding: 8px;
+              background-color: #fff3cd;
+              border: 1px solid #ffc107;
+              border-radius: 5px;
+            }
+            .student-name {
+              font-weight: bold;
+            }
+            .allergies {
+              color: #dc3545;
+              font-weight: bold;
+            }
+            @media print {
+              body { margin: 0; }
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Список замовлень на ${new Date(selectedDate).toLocaleDateString('uk-UA', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}</h1>
+          </div>
+          
+          <div class="stats">
+            <div><strong>Загально учнів:</strong> ${totalOrders}</div>
+            <div><strong>Учнів з алергіями:</strong> ${studentsWithAllergies}</div>
+            <div><strong>Час друку:</strong> ${new Date().toLocaleString('uk-UA')}</div>
+          </div>
+
+          ${orders.length === 0 ? 
+            '<p style="text-align: center; font-size: 18px; margin: 50px 0;">Немає замовлень на цю дату</p>' :
+            `
+            <div class="dishes-section">
+              <h2>Страви до приготування</h2>
+              ${(() => {
+                // Group orders by dish
+                const dishMap = new Map();
+                orders.forEach(order => {
+                  // Add meal1
+                  if (!dishMap.has(order.meal1)) {
+                    dishMap.set(order.meal1, []);
+                  }
+                  dishMap.get(order.meal1).push(`${order.studentName} (${order.grade} кл.)`);
+                  
+                  // Add meal2
+                  if (!dishMap.has(order.meal2)) {
+                    dishMap.set(order.meal2, []);
+                  }
+                  dishMap.get(order.meal2).push(`${order.studentName} (${order.grade} кл.)`);
+                  
+                  // Add side if exists
+                  if (order.side) {
+                    if (!dishMap.has(order.side)) {
+                      dishMap.set(order.side, []);
+                    }
+                    dishMap.get(order.side).push(`${order.studentName} (${order.grade} кл.)`);
+                  }
+                });
+                
+                return Array.from(dishMap.entries()).map(([dishName, students]) => `
+                  <div class="dish-item">
+                    <div class="dish-name">${dishName}</div>
+                    <div class="dish-count">Порцій: ${students.length}</div>
+                    <div class="students-list">${students.join(', ')}</div>
+                  </div>
+                `).join('');
+              })()}
+            </div>
+
+            ${orders.filter(order => order.allergies.length > 0).length > 0 ? `
+            <div class="allergies-section">
+              <h2 style="color: #dc3545;">⚠️ УВАГА: Учні з алергіями</h2>
+              ${orders.filter(order => order.allergies.length > 0).map(order => `
+                <div class="allergy-item">
+                  <div class="student-name">${order.studentName} (${order.grade} клас)</div>
+                  <div>Замовлення: ${order.meal1} + ${order.meal2}${order.side ? ` + ${order.side}` : ''}</div>
+                  <div class="allergies">Алергії: ${order.allergies.join(', ')}</div>
+                </div>
+              `).join('')}
+            </div>
+            ` : ''}
+            `
+          }
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    
+    // Wait a bit for content to load, then print
+    setTimeout(() => {
+      printWindow.print();
+    }, 500);
+  };
+
   const handleShowTomorrow = () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -91,7 +244,7 @@ const KitchenDashboard = () => {
                 <Calendar className="h-4 w-4 mr-2" />
                 Замовлення на завтра
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handlePrintList}>
                 Друкувати список
               </Button>
             </div>
