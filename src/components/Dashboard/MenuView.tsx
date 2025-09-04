@@ -4,10 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Check } from "lucide-react";
-import { mockMenuData, type MenuItem } from "@/data/menuData";
+import { mockMenuData, type MenuItem, type DayMenu } from "@/data/menuData";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useMenuItems } from "@/hooks/useMenuItems";
 
 interface Child {
   id: string;
@@ -23,19 +24,50 @@ interface MenuViewProps {
 export const MenuView = ({ selectedChildId }: MenuViewProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { loadMenuFromDatabase } = useMenuItems();
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [children, setChildren] = useState<Child[]>([]);
   const [currentChild, setCurrentChild] = useState<string>('');
   const [selectedMeals, setSelectedMeals] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
+  const [menuData, setMenuData] = useState<DayMenu[]>(mockMenuData.days);
+  const [weekInfo, setWeekInfo] = useState({ weekStart: mockMenuData.weekStart, weekEnd: mockMenuData.weekEnd });
   
-  const currentDay = mockMenuData.days[selectedDayIndex];
+  const currentDay = menuData[selectedDayIndex];
 
   useEffect(() => {
     if (user) {
       fetchChildren();
+      loadMenuData();
     }
   }, [user]);
+
+  const loadMenuData = async () => {
+    // Get current week's Monday and Sunday
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - today.getDay() + 1);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    const weekStart = monday.toISOString().split('T')[0];
+    const weekEnd = sunday.toISOString().split('T')[0];
+
+    try {
+      const dbMenuData = await loadMenuFromDatabase(weekStart, weekEnd);
+      
+      if (dbMenuData && dbMenuData.length > 0) {
+        setMenuData(dbMenuData);
+        setWeekInfo({
+          weekStart: monday.toLocaleDateString('uk-UA'),
+          weekEnd: sunday.toLocaleDateString('uk-UA')
+        });
+      }
+    } catch (error) {
+      console.error('Error loading menu data:', error);
+      // Keep using mock data as fallback
+    }
+  };
 
   useEffect(() => {
     if (selectedChildId && children.length > 0) {
@@ -69,7 +101,7 @@ export const MenuView = ({ selectedChildId }: MenuViewProps) => {
   const navigateDay = (direction: 'prev' | 'next') => {
     if (direction === 'prev' && selectedDayIndex > 0) {
       setSelectedDayIndex(selectedDayIndex - 1);
-    } else if (direction === 'next' && selectedDayIndex < mockMenuData.days.length - 1) {
+    } else if (direction === 'next' && selectedDayIndex < menuData.length - 1) {
       setSelectedDayIndex(selectedDayIndex + 1);
     }
   };
@@ -171,7 +203,7 @@ export const MenuView = ({ selectedChildId }: MenuViewProps) => {
         <CardHeader className="pb-3">
           <CardTitle className="text-xl">Меню на тиждень</CardTitle>
           <CardDescription>
-            {mockMenuData.weekStart} - {mockMenuData.weekEnd}
+            {weekInfo.weekStart} - {weekInfo.weekEnd}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -197,8 +229,8 @@ export const MenuView = ({ selectedChildId }: MenuViewProps) => {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => navigateDay('next')}
-              disabled={selectedDayIndex === mockMenuData.days.length - 1}
+            onClick={() => navigateDay('next')}
+            disabled={selectedDayIndex === menuData.length - 1}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
