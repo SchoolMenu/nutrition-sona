@@ -3,28 +3,27 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, TrendingUp, Users, DollarSign, Download, Calendar } from "lucide-react";
 import { StudentOrderStats } from "./StudentOrderStats";
+import { useRealAnalytics } from "@/hooks/useRealAnalytics";
 
-interface MonthlyStats {
-  totalRevenue: number;
-  totalOrders: number;
-  activeStudents: number;
-  averageOrderValue: number;
-  
-  weeklyData: { week: string; revenue: number; orders: number }[];
-  studentBilling: { 
-    studentName: string; 
-    grade: string; 
-    ordersCount: number; 
-    totalAmount: number;
-    parentName: string;
-  }[];
-}
+export const Analytics = () => {
+  const { analytics: monthlyStats, loading, error } = useRealAnalytics();
 
-interface AnalyticsProps {
-  monthlyStats: MonthlyStats;
-}
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">Завантаження аналітики...</div>
+      </div>
+    );
+  }
 
-export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-destructive">Помилка: {error}</div>
+      </div>
+    );
+  }
+
   const exportReport = (type: 'csv' | 'pdf') => {
     if (type === 'csv') {
       exportToCSV();
@@ -182,7 +181,7 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">₴{monthlyStats.totalRevenue}</div>
-            <p className="text-xs text-success mt-1">+15% від минулого місяця</p>
+            <p className="text-xs text-success mt-1">Поточний місяць</p>
           </CardContent>
         </Card>
 
@@ -195,7 +194,7 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">{monthlyStats.totalOrders}</div>
-            <p className="text-xs text-success mt-1">+8% від минулого місяця</p>
+            <p className="text-xs text-success mt-1">Поточний місяць</p>
           </CardContent>
         </Card>
 
@@ -208,7 +207,7 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">{monthlyStats.activeStudents}</div>
-            <p className="text-xs text-muted-foreground mt-1">З {monthlyStats.activeStudents + 23} зареєстрованих</p>
+            <p className="text-xs text-muted-foreground mt-1">Які робили замовлення</p>
           </CardContent>
         </Card>
 
@@ -221,7 +220,7 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">₴{monthlyStats.averageOrderValue}</div>
-            <p className="text-xs text-success mt-1">+3% від минулого місяця</p>
+            <p className="text-xs text-success mt-1">На одне замовлення</p>
           </CardContent>
         </Card>
       </div>
@@ -236,7 +235,6 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
         <TabsContent value="orders" className="mt-6">
           <StudentOrderStats />
         </TabsContent>
-
 
         <TabsContent value="weekly" className="mt-6">
           <Card className="border-card-border">
