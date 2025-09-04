@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, TrendingUp, Users, DollarSign, Download, Calendar } from "lucide-react";
@@ -10,7 +9,7 @@ interface MonthlyStats {
   totalOrders: number;
   activeStudents: number;
   averageOrderValue: number;
-  topDishes: { name: string; orders: number; revenue: number }[];
+  
   weeklyData: { week: string; revenue: number; orders: number }[];
   studentBilling: { 
     studentName: string; 
@@ -45,15 +44,6 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
       ['Всього замовлень', monthlyStats.totalOrders.toString()],
       ['Активних учнів', monthlyStats.activeStudents.toString()],
       ['Середній чек', '₴' + monthlyStats.averageOrderValue],
-      [''],
-      ['ПОПУЛЯРНІ СТРАВИ'],
-      ['Позиція', 'Назва страви', 'Замовлень', 'Дохід'],
-      ...monthlyStats.topDishes.map((dish, index) => [
-        (index + 1).toString(),
-        dish.name,
-        dish.orders.toString(),
-        '₴' + dish.revenue
-      ]),
       [''],
       ['ТИЖНЕВА СТАТИСТИКА'],
       ['Тиждень', 'Замовлень', 'Дохід'],
@@ -117,23 +107,6 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
     yPosition += lineHeight;
     doc.text(`Середній чек: ₴${monthlyStats.averageOrderValue}`, 20, yPosition);
     yPosition += lineHeight * 2;
-    
-    // Top Dishes
-    doc.setFontSize(12);
-    doc.text('ТОП СТРАВИ', 20, yPosition);
-    yPosition += lineHeight;
-    
-    doc.setFontSize(10);
-    monthlyStats.topDishes.slice(0, 5).forEach((dish, index) => {
-      if (yPosition > 270) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      doc.text(`${index + 1}. ${dish.name} - ${dish.orders} замовлень, ₴${dish.revenue}`, 20, yPosition);
-      yPosition += lineHeight;
-    });
-    
-    yPosition += lineHeight;
     
     // Weekly Statistics
     doc.setFontSize(12);
@@ -256,7 +229,6 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
       <Tabs defaultValue="orders" className="w-full">
         <TabsList>
           <TabsTrigger value="orders">Статистика замовлень</TabsTrigger>
-          <TabsTrigger value="dishes">Популярні страви</TabsTrigger>
           <TabsTrigger value="weekly">Тижнева динаміка</TabsTrigger>
           <TabsTrigger value="billing">Розрахунки</TabsTrigger>
         </TabsList>
@@ -265,34 +237,6 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
           <StudentOrderStats />
         </TabsContent>
 
-        <TabsContent value="dishes" className="mt-6">
-          <Card className="border-card-border">
-            <CardHeader>
-              <CardTitle>Топ-10 популярних страв</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {monthlyStats.topDishes.map((dish, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border border-card-border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="secondary" className="w-8 h-8 rounded-full flex items-center justify-center">
-                        {index + 1}
-                      </Badge>
-                      <div>
-                        <h4 className="font-medium text-foreground">{dish.name}</h4>
-                        <p className="text-sm text-muted-foreground">{dish.orders} замовлень</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium text-foreground">₴{dish.revenue}</div>
-                      <div className="text-sm text-muted-foreground">дохід</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="weekly" className="mt-6">
           <Card className="border-card-border">

@@ -14,18 +14,6 @@ const mockAnalytics = {
   totalOrders: 1247,
   activeStudents: 156,
   averageOrderValue: 68,
-  topDishes: [
-    { name: "Борщ український з сметаною", orders: 89, revenue: 4005 },
-    { name: "Котлета куряча з картоплею", orders: 76, revenue: 4180 },
-    { name: "Суп курячий з локшиною", orders: 65, revenue: 2925 },
-    { name: "Рагу овочеве з рисом", orders: 58, revenue: 2900 },
-    { name: "Голубці з м'ясом", orders: 45, revenue: 2700 },
-    { name: "Каша гречана з грибами", orders: 42, revenue: 1890 },
-    { name: "Вареники з картоплею", orders: 38, revenue: 1900 },
-    { name: "Рибні котлети з овочами", orders: 35, revenue: 2275 },
-    { name: "Солянка м'ясна", orders: 32, revenue: 1600 },
-    { name: "Печеня яловича", orders: 28, revenue: 1960 }
-  ],
   weeklyData: [
     { week: "Тиждень 1 (1-5 січня)", revenue: 6420, orders: 312 },
     { week: "Тиждень 2 (8-12 січня)", revenue: 6890, orders: 335 },
