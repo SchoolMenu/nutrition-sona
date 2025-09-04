@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, TrendingUp, Users, DollarSign, Download, Calendar } from "lucide-react";
+import { StudentOrderStats } from "./StudentOrderStats";
 
 interface MonthlyStats {
   totalRevenue: number;
@@ -104,12 +105,17 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
         </Card>
       </div>
 
-      <Tabs defaultValue="dishes" className="w-full">
+      <Tabs defaultValue="orders" className="w-full">
         <TabsList>
+          <TabsTrigger value="orders">Статистика замовлень</TabsTrigger>
           <TabsTrigger value="dishes">Популярні страви</TabsTrigger>
           <TabsTrigger value="weekly">Тижнева динаміка</TabsTrigger>
           <TabsTrigger value="billing">Розрахунки</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="orders" className="mt-6">
+          <StudentOrderStats />
+        </TabsContent>
 
         <TabsContent value="dishes" className="mt-6">
           <Card className="border-card-border">
