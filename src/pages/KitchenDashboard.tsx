@@ -3,23 +3,17 @@ import { Header } from "@/components/Layout/Header";
 import { DailyOrders } from "@/components/Kitchen/DailyOrders";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle, Clock, Users } from "lucide-react";
+import { Calendar, Clock, Users } from "lucide-react";
 import { useMealOrders } from "@/hooks/useMealOrders";
 
 // Mock data for kitchen orders - removed since we now use real data
 
 const KitchenDashboard = () => {
-  const [completedDishes, setCompletedDishes] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState(() => {
     return new Date().toISOString().split('T')[0];
   });
   
   const { orders, loading, error } = useMealOrders(selectedDate);
-  
-  const handleMarkReady = (dishName: string) => {
-    setCompletedDishes(prev => [...prev, dishName]);
-    console.log(`Страва "${dishName}" позначена як готова`);
-  };
 
   const handleShowTomorrow = () => {
     const tomorrow = new Date();
@@ -43,7 +37,7 @@ const KitchenDashboard = () => {
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="border-card-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -65,18 +59,6 @@ const KitchenDashboard = () => {
                 <div>
                   <div className="text-2xl font-bold text-foreground">{studentsWithAllergies}</div>
                   <div className="text-sm text-muted-foreground">З алергіями</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-card-border">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-8 w-8 text-success" />
-                <div>
-                  <div className="text-2xl font-bold text-foreground">{completedDishes.length}</div>
-                  <div className="text-sm text-muted-foreground">Страв готово</div>
                 </div>
               </div>
             </CardContent>
@@ -109,10 +91,6 @@ const KitchenDashboard = () => {
               <Button variant="outline" onClick={handleShowTomorrow}>
                 <Calendar className="h-4 w-4 mr-2" />
                 Замовлення на завтра
-              </Button>
-              <Button variant="outline">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Позначити всі готовими
               </Button>
               <Button variant="outline">
                 Друкувати список
