@@ -11,7 +11,6 @@ interface Child {
   grade: string;
   avatar?: string;
   allergies: string[];
-  todayMeal?: string;
   hasOrderForWeek: boolean;
 }
 
@@ -61,13 +60,6 @@ export const ChildrenCards = ({ children, onViewChild, onOrderMeals, onChildAdde
                       {allergy}
                     </Badge>
                   ))}
-                </div>
-              )}
-              
-              {child.todayMeal && (
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Сьогодні: </span>
-                  <span className="text-foreground font-medium">{child.todayMeal}</span>
                 </div>
               )}
               

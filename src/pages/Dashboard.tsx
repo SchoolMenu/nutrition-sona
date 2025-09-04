@@ -15,7 +15,6 @@ interface Child {
   name: string;
   grade: string;
   allergies: string[];
-  todayMeal?: string;
   hasOrderForWeek: boolean;
 }
 
@@ -50,7 +49,6 @@ const Dashboard = () => {
     // Add mock meal info for display
     const childrenWithMeals = (data || []).map((child: any) => ({
       ...child,
-      todayMeal: child.name.includes('Олексій') ? "Борщ з сметаною" : "Котлета з картоплею",
       hasOrderForWeek: child.name.includes('Олексій')
     }));
     
