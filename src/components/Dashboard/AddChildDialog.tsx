@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { AddChildForm, type ChildFormData } from "./AddChildForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
 
 interface AddChildDialogProps {
@@ -22,15 +21,9 @@ export const AddChildDialog = ({ onChildAdded }: AddChildDialogProps) => {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
-  const { toast } = useToast();
 
   const handleSubmit = async (data: ChildFormData) => {
     if (!user) {
-      toast({
-        title: "Помилка",
-        description: "Користувач не авторизований",
-        variant: "destructive",
-      });
       return;
     }
 
@@ -50,20 +43,10 @@ export const AddChildDialog = ({ onChildAdded }: AddChildDialogProps) => {
         throw error;
       }
 
-      toast({
-        title: "Успіх!",
-        description: `Дитину ${data.name} успішно додано`,
-      });
-
       setOpen(false);
       onChildAdded();
     } catch (error) {
       console.error('Error adding child:', error);
-      toast({
-        title: "Помилка",
-        description: "Не вдалося додати дитину. Спробуйте ще раз.",
-        variant: "destructive",
-      });
     } finally {
       setIsSubmitting(false);
     }

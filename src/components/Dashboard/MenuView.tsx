@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Check } from "lucide-r
 import { mockMenuData, type MenuItem, type DayMenu } from "@/data/menuData";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 import { useMenuItems } from "@/hooks/useMenuItems";
 
 interface Child {
@@ -23,7 +22,6 @@ interface MenuViewProps {
 
 export const MenuView = ({ selectedChildId }: MenuViewProps) => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const { loadMenuFromDatabase } = useMenuItems();
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [children, setChildren] = useState<Child[]>([]);
@@ -122,11 +120,6 @@ export const MenuView = ({ selectedChildId }: MenuViewProps) => {
       .eq('parent_id', user.id);
     
     if (error) {
-      toast({
-        title: 'Помилка',
-        description: 'Не вдалося завантажити дітей',
-        variant: 'destructive'
-      });
       return;
     }
     
@@ -148,11 +141,6 @@ export const MenuView = ({ selectedChildId }: MenuViewProps) => {
 
   const handleMealSelection = async (meal: MenuItem, mealType: string) => {
     if (!currentChild) {
-      toast({
-        title: 'Помилка',
-        description: 'Оберіть дитину',
-        variant: 'destructive'
-      });
       return;
     }
 
@@ -176,18 +164,7 @@ export const MenuView = ({ selectedChildId }: MenuViewProps) => {
         meal_type: mealType
       } as any);
 
-    if (error) {
-      toast({
-        title: 'Помилка',
-        description: 'Не вдалося зберегти замовлення',
-        variant: 'destructive'
-      });
-    } else {
-      toast({
-        title: 'Успіх',
-        description: `Обрано: ${meal.name}`,
-      });
-      
+    if (!error) {
       // Update local state
       setSelectedMeals(prev => ({
         ...prev,
