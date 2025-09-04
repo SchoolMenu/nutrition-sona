@@ -1,4 +1,4 @@
-import { Bell, User, Menu, LogOut } from "lucide-react";
+import { User, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -8,10 +8,9 @@ import { useAuth } from "@/contexts/AuthContext";
 interface HeaderProps {
   onMenuToggle?: () => void;
   userName?: string;
-  notificationCount?: number;
 }
 
-export const Header = ({ onMenuToggle, userName, notificationCount = 2 }: HeaderProps) => {
+export const Header = ({ onMenuToggle, userName }: HeaderProps) => {
   const { signOut, profile } = useAuth();
   
   const displayName = profile?.full_name || userName || "Користувач";
@@ -42,18 +41,6 @@ export const Header = ({ onMenuToggle, userName, notificationCount = 2 }: Header
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="relative hover:bg-secondary">
-            <Bell className="h-5 w-5" />
-            {notificationCount > 0 && (
-              <Badge 
-                variant="destructive" 
-                className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
-              >
-                {notificationCount}
-              </Badge>
-            )}
-          </Button>
-          
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
               <AvatarImage src="/placeholder-avatar.png" alt={displayName} />
