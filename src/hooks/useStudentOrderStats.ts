@@ -106,7 +106,15 @@ export const useStudentOrderStats = (date: string = new Date().toISOString().spl
 
       } catch (err) {
         console.error('Error fetching student order stats:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch stats');
+        
+        // Check if it's an authentication issue
+        if (err instanceof Error && err.message.includes('JWT')) {
+          setError('Потрібна автентифікація. Будь ласка, увійдіть в систему як адміністратор.');
+        } else if (err instanceof Error && err.message.includes('RLS')) {
+          setError('Недостатньо прав доступу. Потрібна роль адміністратора.');
+        } else {
+          setError(err instanceof Error ? err.message : 'Failed to fetch stats');
+        }
       } finally {
         setLoading(false);
       }
