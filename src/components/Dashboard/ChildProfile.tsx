@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Calendar, AlertTriangle, User, GraduationCap, Shield } from "lucide-react";
+import { ArrowLeft, Calendar, AlertTriangle, User, GraduationCap, Shield, ChefHat } from "lucide-react";
 import { EditChildDialog } from "./EditChildDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, getDay } from "date-fns";
+import { uk } from "date-fns/locale";
 
 interface Child {
   id: string;
@@ -13,6 +16,13 @@ interface Child {
   allergies: string[];
   todayMeal?: string;
   hasOrderForWeek: boolean;
+}
+
+interface MealOrder {
+  id: string;
+  meal_date: string;
+  meal_id: string;
+  meal_type: string;
 }
 
 interface ChildProfileProps {
@@ -24,6 +34,75 @@ interface ChildProfileProps {
 
 export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: ChildProfileProps) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [mealOrders, setMealOrders] = useState<MealOrder[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Get current week dates
+  const today = new Date();
+  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+  useEffect(() => {
+    if (child?.id) {
+      fetchMealOrders();
+    }
+  }, [child?.id]);
+
+  const fetchMealOrders = async () => {
+    if (!child?.id) return;
+    
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('meal_orders')
+        .select('*')
+        .eq('child_id', child.id)
+        .gte('meal_date', format(weekStart, 'yyyy-MM-dd'))
+        .lte('meal_date', format(weekEnd, 'yyyy-MM-dd'));
+
+      if (error) {
+        console.error('Error fetching meal orders:', error);
+      } else {
+        setMealOrders(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching meal orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get meal name from mock data (similar to useMealOrders hook)
+  const getMealName = (mealId: string): string => {
+    // This should ideally come from menu items database, but using simplified approach
+    const mealNames: Record<string, string> = {
+      'meal1_monday': 'Борщ українській',
+      'meal2_monday': 'Котлета з картопляним пюре',
+      'side_monday': 'Салат з капусти',
+      'meal1_tuesday': 'Суп з курки',
+      'meal2_tuesday': 'Рисова каша з молоком',
+      'side_tuesday': 'Огіркова закуска',
+      'meal1_wednesday': 'Солянка м\'ясна',
+      'meal2_wednesday': 'Макарони з сиром',
+      'side_wednesday': 'Винегрет',
+      'meal1_thursday': 'Грибний суп',
+      'meal2_thursday': 'Гречка з гуляшем',
+      'side_thursday': 'Свіжі овочі',
+      'meal1_friday': 'Курячий бульйон',
+      'meal2_friday': 'Рибна котлета з рисом',
+      'side_friday': 'Маринована капуста'
+    };
+    return mealNames[mealId] || `Страва (${mealId})`;
+  };
+
+  // Group orders by date
+  const getOrdersForDay = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return mealOrders.filter(order => order.meal_date === dateStr);
+  };
+
+  const dayNames = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П\'ятниця', 'Субота', 'Неділя'];
 
   if (!child) {
     return (
@@ -95,17 +174,51 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm">Статус замовлення:</span>
-                <Badge variant={child.hasOrderForWeek ? "default" : "secondary"}>
-                  {child.hasOrderForWeek ? "Активне" : "Немає замовлень"}
+                <Badge variant={mealOrders.length > 0 ? "default" : "secondary"}>
+                  {mealOrders.length > 0 ? "Активне" : "Немає замовлень"}
                 </Badge>
               </div>
-              {child.todayMeal && (
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Сьогоднішня страва: </span>
-                  <span className="font-medium">{child.todayMeal}</span>
+              
+              {loading ? (
+                <p className="text-sm text-muted-foreground">Завантаження замовлень...</p>
+              ) : (
+                <div className="space-y-3">
+                  {weekDays.slice(0, 5).map((day) => { // Only weekdays
+                    const dayOrders = getOrdersForDay(day);
+                    const dayIndex = getDay(day) === 0 ? 6 : getDay(day) - 1; // Adjust for Monday start
+                    
+                    return (
+                      <div key={format(day, 'yyyy-MM-dd')} className="border rounded-lg p-3 bg-card/50">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-sm">
+                            {dayNames[dayIndex]} ({format(day, 'dd.MM', { locale: uk })})
+                          </h4>
+                          {dayOrders.length > 0 && (
+                            <Badge variant="outline" className="text-xs">
+                              {dayOrders.length} страв
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        {dayOrders.length > 0 ? (
+                          <div className="space-y-1">
+                            {dayOrders.map((order) => (
+                              <div key={order.id} className="flex items-center gap-2 text-sm">
+                                <ChefHat className="h-3 w-3 text-muted-foreground" />
+                                <span className="text-muted-foreground capitalize">{order.meal_type}:</span>
+                                <span>{getMealName(order.meal_id)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">Замовлень немає</p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
