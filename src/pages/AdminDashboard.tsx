@@ -69,7 +69,7 @@ const AdminDashboard = () => {
     };
     
     loadMenu();
-  }, [loadMenuFromDatabase]);
+  }, []); // Empty dependency array to run only once on mount
   
   const handleUpdateMenu = (dayIndex: number, updatedDay: DayMenu) => {
     const newWeekMenu = [...weekMenu];
