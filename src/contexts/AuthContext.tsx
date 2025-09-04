@@ -17,6 +17,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  profileLoading: boolean;
   signUp: (email: string, password: string, fullName: string, role: 'parent' | 'cook' | 'admin', schoolCode: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -37,6 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
     console.log('Initializing auth context...');
@@ -74,6 +76,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchProfile = async () => {
       if (user) {
+        setProfileLoading(true);
         console.log('Fetching profile for user:', user.id);
         
         try {
@@ -96,9 +99,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } catch (err) {
           console.error('Profile fetch failed:', err);
           setProfile(null);
+        } finally {
+          setProfileLoading(false);
         }
       } else {
         setProfile(null);
+        setProfileLoading(false);
       }
     };
 
@@ -155,6 +161,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session,
     profile,
     loading,
+    profileLoading,
     signUp,
     signIn,
     signOut

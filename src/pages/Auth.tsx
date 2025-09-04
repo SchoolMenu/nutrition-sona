@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ChefHat, Shield, Users } from 'lucide-react';
 
 const Auth = () => {
-  const { user, profile, signIn, signUp, loading } = useAuth();
+  const { user, profile, profileLoading, signIn, signUp, loading } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -23,7 +23,8 @@ const Auth = () => {
   const [role, setRole] = useState<'parent' | 'cook' | 'admin'>('parent');
   const [schoolCode, setSchoolCode] = useState('');
 
-  if (loading) {
+  // Show loading spinner while auth or profile is loading
+  if (loading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -31,8 +32,8 @@ const Auth = () => {
     );
   }
 
-  // Redirect if user exists and profile loading is complete (profile might be null for new users)
-  if (user && !loading) {
+  // Redirect if user exists (profile might be null for new users or RLS issues)
+  if (user) {
     return <Navigate to="/" replace />;
   }
 
