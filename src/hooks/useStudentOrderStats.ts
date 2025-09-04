@@ -27,6 +27,8 @@ export const useStudentOrderStats = (date: string = new Date().toISOString().spl
       setError(null);
 
       try {
+        console.log('Fetching stats for date:', date);
+
         // Get total registered students
         const { data: totalChildren, error: childrenError } = await supabase
           .from('children')
@@ -35,6 +37,7 @@ export const useStudentOrderStats = (date: string = new Date().toISOString().spl
         if (childrenError) throw childrenError;
 
         const totalStudents = totalChildren?.length || 0;
+        console.log('Total students found:', totalStudents, totalChildren);
 
         // Get students who have orders for the selected date
         const { data: ordersWithChildren, error: ordersError } = await supabase
@@ -51,6 +54,8 @@ export const useStudentOrderStats = (date: string = new Date().toISOString().spl
           .eq('meal_date', date);
 
         if (ordersError) throw ordersError;
+
+        console.log('Orders found for date:', date, ordersWithChildren);
 
         // Get unique students who have orders
         const studentsWithOrdersSet = new Set();
@@ -88,13 +93,16 @@ export const useStudentOrderStats = (date: string = new Date().toISOString().spl
           students: dishData.studentDetails
         }));
 
-        setStats({
+        const finalStats = {
           totalStudents,
           studentsWithOrders,
           studentsWithoutOrders,
           orderParticipationRate,
           dishChoiceStats
-        });
+        };
+
+        console.log('Final calculated stats:', finalStats);
+        setStats(finalStats);
 
       } catch (err) {
         console.error('Error fetching student order stats:', err);
