@@ -27,8 +27,156 @@ interface AnalyticsProps {
 
 export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
   const exportReport = (type: 'csv' | 'pdf') => {
-    console.log(`Exporting ${type} report...`);
-    // Implement export functionality
+    if (type === 'csv') {
+      exportToCSV();
+    } else {
+      exportToPDF();
+    }
+  };
+
+  const exportToCSV = () => {
+    const csvData = [
+      ['Звіт про аналітику харчування'],
+      ['Дата створення: ' + new Date().toLocaleDateString('uk-UA')],
+      [''],
+      ['ЗАГАЛЬНА СТАТИСТИКА'],
+      ['Показник', 'Значення'],
+      ['Загальний дохід', '₴' + monthlyStats.totalRevenue],
+      ['Всього замовлень', monthlyStats.totalOrders.toString()],
+      ['Активних учнів', monthlyStats.activeStudents.toString()],
+      ['Середній чек', '₴' + monthlyStats.averageOrderValue],
+      [''],
+      ['ПОПУЛЯРНІ СТРАВИ'],
+      ['Позиція', 'Назва страви', 'Замовлень', 'Дохід'],
+      ...monthlyStats.topDishes.map((dish, index) => [
+        (index + 1).toString(),
+        dish.name,
+        dish.orders.toString(),
+        '₴' + dish.revenue
+      ]),
+      [''],
+      ['ТИЖНЕВА СТАТИСТИКА'],
+      ['Тиждень', 'Замовлень', 'Дохід'],
+      ...monthlyStats.weeklyData.map(week => [
+        week.week,
+        week.orders.toString(),
+        '₴' + week.revenue
+      ]),
+      [''],
+      ['РОЗРАХУНКИ ПО УЧНЯМ'],
+      ['Учень', 'Клас', 'Батьки', 'Замовлень', 'Сума'],
+      ...monthlyStats.studentBilling.map(student => [
+        student.studentName,
+        student.grade,
+        student.parentName,
+        student.ordersCount.toString(),
+        '₴' + student.totalAmount
+      ])
+    ];
+
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `analytics-report-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportToPDF = async () => {
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF();
+    
+    // Add Ukrainian font support (simplified approach)
+    doc.setFont('helvetica');
+    
+    let yPosition = 20;
+    const lineHeight = 7;
+    
+    // Title
+    doc.setFontSize(16);
+    doc.text('Звіт про аналітику харчування', 20, yPosition);
+    yPosition += lineHeight * 2;
+    
+    doc.setFontSize(10);
+    doc.text('Дата створення: ' + new Date().toLocaleDateString('uk-UA'), 20, yPosition);
+    yPosition += lineHeight * 2;
+    
+    // General Statistics
+    doc.setFontSize(12);
+    doc.text('ЗАГАЛЬНА СТАТИСТИКА', 20, yPosition);
+    yPosition += lineHeight;
+    
+    doc.setFontSize(10);
+    doc.text(`Загальний дохід: ₴${monthlyStats.totalRevenue}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Всього замовлень: ${monthlyStats.totalOrders}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Активних учнів: ${monthlyStats.activeStudents}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Середній чек: ₴${monthlyStats.averageOrderValue}`, 20, yPosition);
+    yPosition += lineHeight * 2;
+    
+    // Top Dishes
+    doc.setFontSize(12);
+    doc.text('ТОП СТРАВИ', 20, yPosition);
+    yPosition += lineHeight;
+    
+    doc.setFontSize(10);
+    monthlyStats.topDishes.slice(0, 5).forEach((dish, index) => {
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(`${index + 1}. ${dish.name} - ${dish.orders} замовлень, ₴${dish.revenue}`, 20, yPosition);
+      yPosition += lineHeight;
+    });
+    
+    yPosition += lineHeight;
+    
+    // Weekly Statistics
+    doc.setFontSize(12);
+    doc.text('ТИЖНЕВА СТАТИСТИКА', 20, yPosition);
+    yPosition += lineHeight;
+    
+    doc.setFontSize(10);
+    monthlyStats.weeklyData.forEach((week) => {
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(`${week.week}: ${week.orders} замовлень, ₴${week.revenue}`, 20, yPosition);
+      yPosition += lineHeight;
+    });
+    
+    // Save the PDF
+    doc.save(`analytics-report-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
+  const exportBilling = () => {
+    const csvData = [
+      ['Розрахунки по учням'],
+      ['Дата створення: ' + new Date().toLocaleDateString('uk-UA')],
+      [''],
+      ['Учень', 'Клас', 'Батьки', 'Замовлень за місяць', 'Загальна сума'],
+      ...monthlyStats.studentBilling.map(student => [
+        student.studentName,
+        student.grade,
+        student.parentName,
+        student.ordersCount.toString(),
+        '₴' + student.totalAmount
+      ])
+    ];
+
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `student-billing-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -178,7 +326,7 @@ export const Analytics = ({ monthlyStats }: AnalyticsProps) => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Розрахунки по учням</CardTitle>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={exportBilling}>
                   <Download className="h-4 w-4 mr-2" />
                   Експорт рахунків
                 </Button>
