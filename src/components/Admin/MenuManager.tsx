@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Edit, Trash2, Save, Calendar, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Save, Calendar, Loader2, Lightbulb } from "lucide-react";
 import { MenuItem, DayMenu, allergensList } from "@/data/menuData";
 import { useMenuItems } from "@/hooks/useMenuItems";
+import { useDishSuggestions } from "@/hooks/useDishSuggestions";
 
 interface MenuManagerProps {
   weekMenu: DayMenu[];
@@ -22,7 +23,9 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
   const [selectedDay, setSelectedDay] = useState(0);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showSuggestion, setShowSuggestion] = useState(false);
   const { saving, saveMenuToDatabase } = useMenuItems();
+  const { findSimilarDish, loading: suggestionLoading } = useDishSuggestions();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -31,6 +34,38 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
     allergens: [] as string[],
     category: "meal1" as 'meal1' | 'meal2' | 'side'
   });
+
+  // Auto-fill price based on similar dish name
+  useEffect(() => {
+    const searchSimilarDish = async () => {
+      if (formData.name.trim().length >= 3 && !editingItem) {
+        const similarDish = await findSimilarDish(formData.name);
+        if (similarDish && similarDish.name.toLowerCase() !== formData.name.toLowerCase()) {
+          setShowSuggestion(true);
+        } else {
+          setShowSuggestion(false);
+        }
+      } else {
+        setShowSuggestion(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(searchSimilarDish, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [formData.name, editingItem, findSimilarDish]);
+
+  const applySuggestion = async () => {
+    const similarDish = await findSimilarDish(formData.name);
+    if (similarDish) {
+      setFormData(prev => ({
+        ...prev,
+        price: similarDish.price,
+        description: similarDish.description,
+        allergens: [...similarDish.allergens]
+      }));
+      setShowSuggestion(false);
+    }
+  };
 
   const handleSaveToDatabase = async () => {
     await saveMenuToDatabase(weekMenu);
@@ -56,6 +91,7 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
         category: category || "meal1"
       });
     }
+    setShowSuggestion(false);
     setIsDialogOpen(true);
   };
 
@@ -243,12 +279,31 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
           <div className="space-y-4">
             <div>
               <Label htmlFor="name">Назва страви</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Наприклад: Борщ український"
-              />
+              <div className="relative">
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Наприклад: Борщ український"
+                />
+                {showSuggestion && !suggestionLoading && (
+                  <div className="absolute top-full left-0 right-0 z-10 mt-1 p-3 bg-card border border-border rounded-md shadow-lg">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                      <Lightbulb className="h-4 w-4" />
+                      <span>Знайдено схожу страву</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={applySuggestion}
+                      className="w-full text-left justify-start"
+                    >
+                      Використати дані з схожої страви
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
             
             <div>
