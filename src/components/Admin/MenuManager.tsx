@@ -36,7 +36,7 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
     await saveMenuToDatabase(weekMenu);
   };
 
-  const openEditDialog = (item?: MenuItem) => {
+  const openEditDialog = (item?: MenuItem, category?: 'meal1' | 'meal2' | 'side') => {
     if (item) {
       setEditingItem(item);
       setFormData({
@@ -53,7 +53,7 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
         description: "",
         price: 0,
         allergens: [],
-        category: "meal1"
+        category: category || "meal1"
       });
     }
     setIsDialogOpen(true);
@@ -153,10 +153,7 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
       <Button
         variant="outline"
         className="w-full"
-        onClick={() => {
-          setFormData(prev => ({ ...prev, category }));
-          openEditDialog();
-        }}
+        onClick={() => openEditDialog(undefined, category)}
       >
         <Plus className="h-4 w-4 mr-2" />
         Додати страву
