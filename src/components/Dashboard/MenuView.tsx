@@ -75,6 +75,44 @@ export const MenuView = ({ selectedChildId }: MenuViewProps) => {
     }
   }, [selectedChildId, children]);
 
+  // Load existing meal orders when child or day changes
+  useEffect(() => {
+    if (currentChild && currentDay) {
+      loadExistingOrders();
+    }
+  }, [currentChild, currentDay?.date]);
+
+  const loadExistingOrders = async () => {
+    if (!currentChild || !currentDay) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('meal_orders' as any)
+        .select('meal_id, meal_type')
+        .eq('child_id', currentChild)
+        .eq('meal_date', currentDay.date);
+
+      if (error) throw error;
+
+      // Update selected meals state
+      const newSelectedMeals: Record<string, string[]> = {};
+      (data as any[])?.forEach((order: any) => {
+        const key = `${currentDay.date}-${order.meal_type}`;
+        if (!newSelectedMeals[key]) {
+          newSelectedMeals[key] = [];
+        }
+        newSelectedMeals[key].push(order.meal_id);
+      });
+
+      setSelectedMeals(prev => ({
+        ...prev,
+        ...newSelectedMeals
+      }));
+    } catch (error) {
+      console.error('Error loading existing orders:', error);
+    }
+  };
+
   const fetchChildren = async () => {
     if (!user) return;
     
