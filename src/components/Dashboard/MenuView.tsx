@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Check, Save } from "lucide-react";
 import { mockMenuData, type MenuItem, type DayMenu } from "@/data/menuData";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMenuItems } from "@/hooks/useMenuItems";
+import { toast } from "sonner";
 
 interface Child {
   id: string;
@@ -28,7 +29,9 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
   const [children, setChildren] = useState<Child[]>([]);
   const [currentChild, setCurrentChild] = useState<string>('');
   const [selectedMeals, setSelectedMeals] = useState<Record<string, string[]>>({});
+  const [pendingSelections, setPendingSelections] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [menuData, setMenuData] = useState<DayMenu[]>(mockMenuData.days);
   const [weekInfo, setWeekInfo] = useState({ weekStart: mockMenuData.weekStart, weekEnd: mockMenuData.weekEnd });
   
@@ -80,6 +83,11 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
       loadExistingOrders();
     }
   }, [currentChild, currentDay?.date]);
+
+  // Clear pending selections when changing days or children
+  useEffect(() => {
+    setPendingSelections({});
+  }, [selectedDayIndex, currentChild]);
 
   const loadExistingOrders = async () => {
     if (!currentChild || !currentDay) return;
@@ -140,47 +148,97 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
 
   const formatPrice = (price: number) => `${price} грн`;
 
-  const handleMealSelection = async (meal: MenuItem, mealType: string) => {
+  const handleMealSelection = (meal: MenuItem, mealType: string) => {
     if (!currentChild) {
       return;
     }
 
-    setLoading(true);
+    const key = `${currentDay.date}-${mealType}`;
+    
+    // Update pending selections (not saved yet)
+    setPendingSelections(prev => ({
+      ...prev,
+      [key]: [meal.name]
+    }));
+  };
 
-    // Remove existing order for this day and meal type
-    await supabase
-      .from('meal_orders' as any)
-      .delete()
-      .eq('child_id', currentChild)
-      .eq('meal_date', currentDay.date)
-      .eq('meal_type', mealType);
-
-    // Add new order
-    const { error } = await supabase
-      .from('meal_orders' as any)
-      .insert({
-        child_id: currentChild,
-        meal_name: meal.name,
-        meal_date: currentDay.date,
-        meal_type: mealType
-      } as any);
-
-    if (!error) {
-      // Update local state
-      setSelectedMeals(prev => ({
-        ...prev,
-        [`${currentDay.date}-${mealType}`]: [meal.name]
-      }));
-      
-      // Refresh statistics with small delay to ensure DB is updated
-      setTimeout(() => {
-        if (onOrdersChange) {
-          onOrdersChange();
-        }
-      }, 500);
+  const saveSelections = async () => {
+    if (!currentChild || !currentDay) {
+      return;
     }
 
-    setLoading(false);
+    setSaving(true);
+
+    try {
+      // Remove all existing orders for this day
+      await supabase
+        .from('meal_orders' as any)
+        .delete()
+        .eq('child_id', currentChild)
+        .eq('meal_date', currentDay.date);
+
+      // Insert new orders from pending selections
+      const ordersToInsert = Object.entries(pendingSelections)
+        .filter(([key]) => key.startsWith(currentDay.date))
+        .flatMap(([key, meals]) => {
+          const mealType = key.split('-').slice(1).join('-');
+          return meals.map(mealName => ({
+            child_id: currentChild,
+            meal_name: mealName,
+            meal_date: currentDay.date,
+            meal_type: mealType
+          }));
+        });
+
+      if (ordersToInsert.length > 0) {
+        const { error } = await supabase
+          .from('meal_orders' as any)
+          .insert(ordersToInsert);
+
+        if (error) throw error;
+      }
+
+      // Update selected meals state with the saved selections
+      const newSelectedMeals = { ...selectedMeals };
+      Object.entries(pendingSelections).forEach(([key, meals]) => {
+        if (key.startsWith(currentDay.date)) {
+          newSelectedMeals[key] = meals;
+        }
+      });
+      setSelectedMeals(newSelectedMeals);
+
+      // Clear pending selections for this day
+      const clearedPending = { ...pendingSelections };
+      Object.keys(clearedPending).forEach(key => {
+        if (key.startsWith(currentDay.date)) {
+          delete clearedPending[key];
+        }
+      });
+      setPendingSelections(clearedPending);
+
+      toast.success("Вибір збережено!");
+
+      // Refresh statistics
+      if (onOrdersChange) {
+        onOrdersChange();
+      }
+    } catch (error) {
+      console.error('Error saving selections:', error);
+      toast.error("Помилка при збереженні вибору");
+    }
+
+    setSaving(false);
+  };
+
+  const getCurrentSelections = (mealType: string) => {
+    const key = `${currentDay.date}-${mealType}`;
+    return pendingSelections[key] || selectedMeals[key] || [];
+  };
+
+  const hasUnsavedChanges = () => {
+    return Object.keys(pendingSelections).some(key => 
+      key.startsWith(currentDay.date) && pendingSelections[key].length > 0
+    );
   };
 
   const isChildAllergic = (meal: MenuItem, child: Child) => {
@@ -247,6 +305,9 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
             <div className="text-center">
               <h3 className="font-semibold text-lg">{currentDay.dayName}</h3>
               <p className="text-sm text-muted-foreground">{currentDay.date}</p>
+              {hasUnsavedChanges() && (
+                <p className="text-xs text-warning">Є незбережені зміни</p>
+              )}
             </div>
             
             <Button 
@@ -260,6 +321,23 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
           </div>
         </CardContent>
       </Card>
+
+      {/* Save Button */}
+      {currentChild && (
+        <Card>
+          <CardContent className="p-4">
+            <Button 
+              onClick={saveSelections}
+              disabled={saving || !hasUnsavedChanges()}
+              className="w-full"
+              size="lg"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              {saving ? 'Збереження...' : 'Зберегти вибір'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Menu Options */}
       <div className="space-y-4">
@@ -294,16 +372,16 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                   size="sm" 
                   className="w-full"
                   onClick={() => handleMealSelection(meal, 'meal1')}
-                  disabled={loading || (selectedChildObj && isChildAllergic(meal, selectedChildObj))}
+                  disabled={selectedChildObj && isChildAllergic(meal, selectedChildObj)}
                 >
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                  ) : selectedMeals[`${currentDay.date}-meal1`]?.includes(meal.name) ? (
+                  ) : getCurrentSelections('meal1').includes(meal.name) ? (
                     <Check className="h-4 w-4 mr-2" />
                   ) : null}
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
                     ? 'Алергія' 
-                    : selectedMeals[`${currentDay.date}-meal1`]?.includes(meal.name)
+                    : getCurrentSelections('meal1').includes(meal.name)
                     ? 'Обрано'
                     : 'Вибрати'
                   }
@@ -344,16 +422,16 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                   size="sm" 
                   className="w-full"
                   onClick={() => handleMealSelection(meal, 'meal2')}
-                  disabled={loading || (selectedChildObj && isChildAllergic(meal, selectedChildObj))}
+                  disabled={selectedChildObj && isChildAllergic(meal, selectedChildObj)}
                 >
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                  ) : selectedMeals[`${currentDay.date}-meal2`]?.includes(meal.name) ? (
+                  ) : getCurrentSelections('meal2').includes(meal.name) ? (
                     <Check className="h-4 w-4 mr-2" />
                   ) : null}
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
                     ? 'Алергія' 
-                    : selectedMeals[`${currentDay.date}-meal2`]?.includes(meal.name)
+                    : getCurrentSelections('meal2').includes(meal.name)
                     ? 'Обрано'
                     : 'Вибрати'
                   }
@@ -395,16 +473,16 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                   size="sm" 
                   className="w-full"
                   onClick={() => handleMealSelection(meal, 'side')}
-                  disabled={loading || (selectedChildObj && isChildAllergic(meal, selectedChildObj))}
+                  disabled={selectedChildObj && isChildAllergic(meal, selectedChildObj)}
                 >
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                  ) : selectedMeals[`${currentDay.date}-side`]?.includes(meal.name) ? (
+                  ) : getCurrentSelections('side').includes(meal.name) ? (
                     <Check className="h-4 w-4 mr-2" />
                   ) : null}
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
                     ? 'Алергія' 
-                    : selectedMeals[`${currentDay.date}-side`]?.includes(meal.name)
+                    : getCurrentSelections('side').includes(meal.name)
                     ? 'Обрано'
                     : 'Вибрати'
                   }
