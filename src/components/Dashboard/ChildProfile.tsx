@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Calendar, AlertTriangle, User, GraduationCap, Shield, ChefHat } from "lucide-react";
+import { ArrowLeft, Calendar, AlertTriangle, User, GraduationCap, Shield, ChefHat, ChevronLeft, ChevronRight } from "lucide-react";
 import { EditChildDialog } from "./EditChildDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, getDay } from "date-fns";
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, getDay, addWeeks } from "date-fns";
 import { uk } from "date-fns/locale";
 
 interface Child {
@@ -36,18 +36,20 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [mealOrders, setMealOrders] = useState<MealOrder[]>([]);
   const [loading, setLoading] = useState(false);
+  const [weekOffset, setWeekOffset] = useState(0); // 0 = current week, 1 = next week, etc.
 
-  // Get current week dates
+  // Get week dates based on offset
   const today = new Date();
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
+  const baseWeek = addWeeks(today, weekOffset);
+  const weekStart = startOfWeek(baseWeek, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(baseWeek, { weekStartsOn: 1 });
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
   useEffect(() => {
     if (child?.id) {
       fetchMealOrders();
     }
-  }, [child?.id]);
+  }, [child?.id, weekOffset]);
 
   const fetchMealOrders = async () => {
     if (!child?.id) return;
@@ -70,6 +72,28 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
       console.error('Error fetching meal orders:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleWeekChange = (direction: 'prev' | 'next') => {
+    if (direction === 'prev' && weekOffset > -4) { // Allow up to 4 weeks back
+      setWeekOffset(weekOffset - 1);
+    } else if (direction === 'next' && weekOffset < 4) { // Allow up to 4 weeks forward
+      setWeekOffset(weekOffset + 1);
+    }
+  };
+
+  const getWeekLabel = () => {
+    if (weekOffset === 0) {
+      return "Поточний тиждень";
+    } else if (weekOffset === 1) {
+      return "Наступний тиждень";
+    } else if (weekOffset > 1) {
+      return `Через ${weekOffset} тижнів`;
+    } else if (weekOffset === -1) {
+      return "Минулий тиждень";
+    } else {
+      return `${Math.abs(weekOffset)} тижнів назад`;
     }
   };
 
@@ -147,10 +171,36 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Calendar className="h-5 w-5" />
-              Замовлення на тиждень
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Calendar className="h-5 w-5" />
+                Замовлення на тиждень
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleWeekChange('prev')}
+                  disabled={weekOffset <= -4}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm font-medium px-2">
+                  {getWeekLabel()}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleWeekChange('next')}
+                  disabled={weekOffset >= 4}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {format(weekStart, 'dd.MM', { locale: uk })} - {format(weekEnd, 'dd.MM', { locale: uk })}
+            </p>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
