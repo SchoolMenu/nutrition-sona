@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { ChefHat, Shield, Users } from 'lucide-react';
+
 
 const Auth = () => {
   const { user, profile, profileLoading, signIn, signUp, loading } = useAuth();
@@ -20,7 +20,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [role, setRole] = useState<'parent' | 'cook' | 'admin'>('parent');
+  // Role is fixed as 'parent' for all new registrations
   const [schoolCode, setSchoolCode] = useState('');
 
   // Show loading spinner while auth or profile is loading
@@ -68,7 +68,7 @@ const Auth = () => {
 
     setIsLoading(true);
 
-    const { error } = await signUp(email, password, fullName, role, schoolCode);
+    const { error } = await signUp(email, password, fullName, 'parent', schoolCode);
     
     if (error) {
       toast({
@@ -86,11 +86,6 @@ const Auth = () => {
     setIsLoading(false);
   };
 
-  const roleOptions = [
-    { value: 'parent', label: 'Батьки', icon: Users, description: 'Замовлення обідів для дітей' },
-    { value: 'cook', label: 'Кухар', icon: ChefHat, description: 'Перегляд замовлень та приготування' },
-    { value: 'admin', label: 'Адміністрація', icon: Shield, description: 'Управління меню та аналітика' }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
@@ -200,27 +195,6 @@ const Auth = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Роль в системі</Label>
-                    <Select value={role} onValueChange={(value: 'parent' | 'cook' | 'admin') => setRole(value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {roleOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            <div className="flex items-center gap-2">
-                              <option.icon className="h-4 w-4" />
-                              <div>
-                                <div className="font-medium">{option.label}</div>
-                                <div className="text-xs text-muted-foreground">{option.description}</div>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                   
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? 'Реєстрація...' : 'Зареєструватися'}
