@@ -22,6 +22,20 @@ export const MenuManager = ({
   onUpdateMenu
 }: MenuManagerProps) => {
   const [selectedDay, setSelectedDay] = useState(0);
+  
+  // Early return if weekMenu is empty or selectedDay is invalid
+  if (!weekMenu || weekMenu.length === 0 || !weekMenu[selectedDay]) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center p-8">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Завантаження меню...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showSuggestion, setShowSuggestion] = useState(false);
@@ -104,6 +118,13 @@ export const MenuManager = ({
   };
   const handleSaveItem = async () => {
     console.log('Saving item with data:', formData);
+    
+    // Safety check
+    if (!weekMenu[selectedDay]) {
+      console.error('Selected day is invalid:', selectedDay);
+      return;
+    }
+    
     const newItem: MenuItem = {
       id: editingItem?.id || `new_${Date.now()}`,
       ...formData
@@ -143,6 +164,12 @@ export const MenuManager = ({
     setIsDialogOpen(false);
   };
   const handleDeleteItem = (itemId: string, category: 'meal1' | 'meal2' | 'side') => {
+    // Safety check
+    if (!weekMenu[selectedDay]) {
+      console.error('Selected day is invalid for delete:', selectedDay);
+      return;
+    }
+    
     const currentDay = weekMenu[selectedDay];
     const updatedDay = {
       ...currentDay

@@ -29,6 +29,7 @@ const getWeekDates = (weekOffset: number = 0) => {
 const AdminDashboard = () => {
   const [weekMenu, setWeekMenu] = useState<DayMenu[]>(mockMenuData.days);
   const [selectedWeekOffset, setSelectedWeekOffset] = useState(0); // 0 = current week, 1 = next week, etc.
+  const [isLoadingMenu, setIsLoadingMenu] = useState(true);
   const {
     loading,
     loadMenuFromDatabase
@@ -36,32 +37,37 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const loadMenu = async () => {
-      const { start, end } = getWeekDates(selectedWeekOffset);
-      const dbMenu = await loadMenuFromDatabase(start, end);
-      
-      if (dbMenu && dbMenu.length > 0) {
-        setWeekMenu(dbMenu);
-      } else {
-        // Generate empty menu structure for the selected week
-        const { startDate } = getWeekDates(selectedWeekOffset);
-        const emptyWeekMenu: DayMenu[] = [];
+      setIsLoadingMenu(true);
+      try {
+        const { start, end } = getWeekDates(selectedWeekOffset);
+        const dbMenu = await loadMenuFromDatabase(start, end);
         
-        for (let i = 0; i < 5; i++) {
-          const currentDay = new Date(startDate);
-          currentDay.setDate(startDate.getDate() + i);
+        if (dbMenu && dbMenu.length > 0) {
+          setWeekMenu(dbMenu);
+        } else {
+          // Generate empty menu structure for the selected week
+          const { startDate } = getWeekDates(selectedWeekOffset);
+          const emptyWeekMenu: DayMenu[] = [];
           
-          const dayNames = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
+          for (let i = 0; i < 5; i++) {
+            const currentDay = new Date(startDate);
+            currentDay.setDate(startDate.getDate() + i);
+            
+            const dayNames = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
+            
+            emptyWeekMenu.push({
+              date: currentDay.toISOString().split('T')[0],
+              dayName: dayNames[i],
+              meal1Options: [],
+              meal2Options: [],
+              sideOptions: []
+            });
+          }
           
-          emptyWeekMenu.push({
-            date: currentDay.toISOString().split('T')[0],
-            dayName: dayNames[i],
-            meal1Options: [],
-            meal2Options: [],
-            sideOptions: []
-          });
+          setWeekMenu(emptyWeekMenu);
         }
-        
-        setWeekMenu(emptyWeekMenu);
+      } finally {
+        setIsLoadingMenu(false);
       }
     };
 
@@ -142,10 +148,19 @@ const AdminDashboard = () => {
           </TabsList>
           
           <TabsContent value="menu" className="mt-8 space-y-6">
-            <MenuManager 
-              weekMenu={weekMenu} 
-              onUpdateMenu={handleUpdateMenu}
-            />
+            {isLoadingMenu ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="text-center">
+                  <div className="animate-spin h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Завантаження меню...</p>
+                </div>
+              </div>
+            ) : (
+              <MenuManager 
+                weekMenu={weekMenu} 
+                onUpdateMenu={handleUpdateMenu}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="orders" className="mt-8 space-y-6">
