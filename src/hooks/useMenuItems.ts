@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DayMenu, MenuItem } from '@/data/menuData';
 import { useToast } from '@/hooks/use-toast';
@@ -10,7 +10,7 @@ export const useMenuItems = () => {
   const { toast } = useToast();
   const { profile } = useAuth();
 
-  const saveMenuToDatabase = async (weekMenu: DayMenu[]) => {
+  const saveMenuToDatabase = useCallback(async (weekMenu: DayMenu[]) => {
     console.log('Starting save operation with weekMenu:', weekMenu);
     setSaving(true);
     try {
@@ -103,9 +103,9 @@ export const useMenuItems = () => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [toast, profile?.school_code]);
 
-  const loadMenuFromDatabase = async (weekStart: string, weekEnd: string): Promise<DayMenu[] | null> => {
+  const loadMenuFromDatabase = useCallback(async (weekStart: string, weekEnd: string): Promise<DayMenu[] | null> => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -182,7 +182,7 @@ export const useMenuItems = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   return {
     loading,
