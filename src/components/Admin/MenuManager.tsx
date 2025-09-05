@@ -248,7 +248,7 @@ export const MenuManager = ({
                 ...prev,
                 name: e.target.value
               }))} placeholder="Наприклад: Борщ український" />
-                {showSuggestion && !suggestionLoading && <div className="absolute top-full left-0 right-0 z-10 mt-1 p-3 bg-card border border-border rounded-md shadow-lg">
+                {showSuggestion && !suggestionLoading && <div className="absolute top-full left-0 right-0 z-[5] mt-1 p-3 bg-card border border-border rounded-md shadow-lg">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                       <Lightbulb className="h-4 w-4" />
                       <span>Знайдено схожу страву</span>
