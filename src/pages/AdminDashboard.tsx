@@ -56,18 +56,18 @@ const AdminDashboard = () => {
             <TabsTrigger value="analytics" className="text-xs md:text-sm">Звіти</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="menu" className="mt-6">
+          <TabsContent value="menu" className="mt-8 space-y-6">
             <MenuManager 
               weekMenu={weekMenu}
               onUpdateMenu={handleUpdateMenu}
             />
           </TabsContent>
 
-          <TabsContent value="orders" className="mt-6">
+          <TabsContent value="orders" className="mt-8 space-y-6">
             <WeeklyOrders />
           </TabsContent>
           
-          <TabsContent value="analytics" className="mt-6">
+          <TabsContent value="analytics" className="mt-8 space-y-6">
             <Analytics />
           </TabsContent>
         </Tabs>
