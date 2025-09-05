@@ -43,7 +43,7 @@ const AdminDashboard = () => {
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Main Content Tabs */}
         <Tabs defaultValue="menu" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 gap-1">
+          <TabsList className="grid w-full grid-cols-3 gap-1">
             <TabsTrigger value="menu" className="text-xs md:text-sm py-[1px]">Меню</TabsTrigger>
             <TabsTrigger value="orders" className="text-xs md:text-sm mx-0 py-[1px]">Замовлення</TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs md:text-sm py-[1px]">Звіти</TabsTrigger>
