@@ -22,6 +22,7 @@ export type Database = {
           id: string
           name: string
           parent_id: string
+          school_code: string
           updated_at: string
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           id?: string
           name: string
           parent_id: string
+          school_code?: string
           updated_at?: string
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           id?: string
           name?: string
           parent_id?: string
+          school_code?: string
           updated_at?: string
         }
         Relationships: []
@@ -52,6 +55,7 @@ export type Database = {
           meal_date: string
           meal_name: string
           meal_type: string
+          school_code: string
         }
         Insert: {
           child_id: string
@@ -60,6 +64,7 @@ export type Database = {
           meal_date: string
           meal_name: string
           meal_type: string
+          school_code?: string
         }
         Update: {
           child_id?: string
@@ -68,6 +73,7 @@ export type Database = {
           meal_date?: string
           meal_name?: string
           meal_type?: string
+          school_code?: string
         }
         Relationships: [
           {
@@ -97,6 +103,7 @@ export type Database = {
           menu_date: string
           name: string
           price: number
+          school_code: string
           updated_at: string
         }
         Insert: {
@@ -109,6 +116,7 @@ export type Database = {
           menu_date: string
           name: string
           price?: number
+          school_code?: string
           updated_at?: string
         }
         Update: {
@@ -121,6 +129,7 @@ export type Database = {
           menu_date?: string
           name?: string
           price?: number
+          school_code?: string
           updated_at?: string
         }
         Relationships: []
@@ -163,6 +172,10 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_current_user_school_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_meal_orders_for_date: {
         Args: { target_date: string }
