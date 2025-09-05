@@ -228,15 +228,15 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {weekMenu.map((day, index) => (
               <Button
                 key={index}
                 variant={selectedDay === index ? "default" : "outline"}
                 onClick={() => setSelectedDay(index)}
-                className="flex flex-col gap-1 h-auto py-3"
+                className="flex flex-col gap-1 h-auto py-2 text-center"
               >
-                <span className="font-medium">{day.dayName}</span>
+                <span className="font-medium text-xs sm:text-sm">{day.dayName}</span>
                 <span className="text-xs opacity-70">
                   {new Date(day.date).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short' })}
                 </span>
@@ -248,10 +248,10 @@ export const MenuManager = ({ weekMenu, onUpdateMenu }: MenuManagerProps) => {
 
       {/* Menu editor */}
       <Tabs defaultValue="meal1" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="meal1">Перша страва</TabsTrigger>
-          <TabsTrigger value="meal2">Друга страва</TabsTrigger>
-          <TabsTrigger value="side">Додатково</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 gap-1">
+          <TabsTrigger value="meal1" className="text-xs sm:text-sm">Перша страва</TabsTrigger>
+          <TabsTrigger value="meal2" className="text-xs sm:text-sm">Друга страва</TabsTrigger>
+          <TabsTrigger value="side" className="text-xs sm:text-sm">Додатково</TabsTrigger>
         </TabsList>
         
         <TabsContent value="meal1" className="mt-4">
