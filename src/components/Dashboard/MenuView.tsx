@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Check, Save } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Check, Save, CalendarDays } from "lucide-react";
 import { mockMenuData, type MenuItem, type DayMenu } from "@/data/menuData";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMenuItems } from "@/hooks/useMenuItems";
+import { getWeekDates } from "@/lib/weekUtils";
 import { toast } from "sonner";
 
 interface Child {
@@ -26,6 +27,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
   const { user, profile } = useAuth();
   const { loadMenuFromDatabase } = useMenuItems();
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [selectedWeekOffset, setSelectedWeekOffset] = useState(0);
   const [children, setChildren] = useState<Child[]>([]);
   const [currentChild, setCurrentChild] = useState<string>('');
   const [selectedMeals, setSelectedMeals] = useState<Record<string, string[]>>({});
@@ -40,31 +42,53 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
   useEffect(() => {
     if (user) {
       fetchChildren();
-      loadMenuData();
     }
   }, [user]);
 
+  useEffect(() => {
+    if (user) {
+      loadMenuData();
+    }
+  }, [user, selectedWeekOffset]);
+
   const loadMenuData = async () => {
-    // Get current week's Monday and Sunday
-    const today = new Date();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - today.getDay() + 1);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-
-    const weekStart = monday.toISOString().split('T')[0];
-    const weekEnd = sunday.toISOString().split('T')[0];
-
+    const { start, end, startDate, endDate } = getWeekDates(selectedWeekOffset);
+    
     try {
-      const dbMenuData = await loadMenuFromDatabase(weekStart, weekEnd);
+      const dbMenuData = await loadMenuFromDatabase(start, end);
       
-      if (dbMenuData && dbMenuData.length > 0) {
-        setMenuData(dbMenuData);
-        setWeekInfo({
-          weekStart: monday.toLocaleDateString('uk-UA'),
-          weekEnd: sunday.toLocaleDateString('uk-UA')
-        });
+      // Always generate all 5 days of the week structure  
+      const dayNames = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
+      const fullWeekMenu: DayMenu[] = [];
+      
+      for (let i = 0; i < 5; i++) {
+        const currentDay = new Date(startDate);
+        currentDay.setDate(startDate.getDate() + i);
+        const dateStr = currentDay.toISOString().split('T')[0];
+        
+        // Find existing data for this date
+        const existingDay = dbMenuData?.find(day => day.date === dateStr);
+        
+        if (existingDay) {
+          // Use existing data
+          fullWeekMenu.push(existingDay);
+        } else {
+          // Create empty day structure
+          fullWeekMenu.push({
+            date: dateStr,
+            dayName: dayNames[i],
+            meal1Options: [],
+            meal2Options: [],
+            sideOptions: []
+          });
+        }
       }
+      
+      setMenuData(fullWeekMenu);
+      setWeekInfo({
+        weekStart: startDate.toLocaleDateString('uk-UA'),
+        weekEnd: endDate.toLocaleDateString('uk-UA')
+      });
     } catch (error) {
       console.error('Error loading menu data:', error);
       // Keep using mock data as fallback
@@ -143,6 +167,30 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
       setSelectedDayIndex(selectedDayIndex - 1);
     } else if (direction === 'next' && selectedDayIndex < menuData.length - 1) {
       setSelectedDayIndex(selectedDayIndex + 1);
+    }
+  };
+
+  const handleWeekChange = (offset: number) => {
+    setSelectedWeekOffset(offset);
+    setSelectedDayIndex(0); // Reset to Monday when changing weeks
+    setPendingSelections({}); // Clear pending selections
+  };
+
+  const getCurrentWeekLabel = () => {
+    const { startDate, endDate } = getWeekDates(selectedWeekOffset);
+    const startStr = startDate.toLocaleDateString('uk-UA', { day: 'numeric', month: 'short' });
+    const endStr = endDate.toLocaleDateString('uk-UA', { day: 'numeric', month: 'short' });
+    
+    if (selectedWeekOffset === 0) {
+      return `Поточний тиждень (${startStr} - ${endStr})`;
+    } else if (selectedWeekOffset === 1) {
+      return `Наступний тиждень (${startStr} - ${endStr})`;
+    } else if (selectedWeekOffset > 1) {
+      return `Через ${selectedWeekOffset} тижнів (${startStr} - ${endStr})`;
+    } else if (selectedWeekOffset === -1) {
+      return `Минулий тиждень (${startStr} - ${endStr})`;
+    } else {
+      return `${Math.abs(selectedWeekOffset)} тижнів назад (${startStr} - ${endStr})`;
     }
   };
 
@@ -283,10 +331,40 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
       {/* Week Header */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl">Меню на тиждень</CardTitle>
-          <CardDescription>
-            {weekInfo.weekStart} - {weekInfo.weekEnd}
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl">Меню на тиждень</CardTitle>
+              <CardDescription>
+                {getCurrentWeekLabel()}
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleWeekChange(selectedWeekOffset - 1)}
+                disabled={selectedWeekOffset <= -4} // Limit to 4 weeks back
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleWeekChange(0)}
+                disabled={selectedWeekOffset === 0}
+              >
+                <CalendarDays className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleWeekChange(selectedWeekOffset + 1)}
+                disabled={selectedWeekOffset >= 4} // Limit to 4 weeks ahead
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </CardHeader>
       </Card>
 

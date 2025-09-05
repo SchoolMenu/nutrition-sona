@@ -9,22 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { mockMenuData, DayMenu } from "@/data/menuData";
 import { useMenuItems } from "@/hooks/useMenuItems";
-
-// Helper function to get week dates
-const getWeekDates = (weekOffset: number = 0) => {
-  const today = new Date();
-  const weekStart = new Date(today);
-  weekStart.setDate(today.getDate() - today.getDay() + 1 + (weekOffset * 7)); // Monday
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 4); // Friday
-  
-  return {
-    start: weekStart.toISOString().split('T')[0],
-    end: weekEnd.toISOString().split('T')[0],
-    startDate: weekStart,
-    endDate: weekEnd
-  };
-};
+import { getWeekDates } from "@/lib/weekUtils";
 
 const AdminDashboard = () => {
   const [weekMenu, setWeekMenu] = useState<DayMenu[]>(mockMenuData.days);
