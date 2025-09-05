@@ -46,7 +46,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener FIRST (must be synchronous to prevent deadlock)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        console.log('🔐 Auth state changed:', event, {
+          userEmail: session?.user?.email,
+          hasSession: !!session,
+          userId: session?.user?.id
+        });
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -81,21 +85,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         try {
           const { data: profileData, error } = await supabase
-            .from('profiles' as any)
+            .from('profiles')
             .select('*')
             .eq('user_id', user.id)
             .single();
           
           if (error) {
-            console.error('Error fetching profile:', error);
+            console.error('❌ Error fetching profile:', error);
             if (error.code === '42501' || error.code === '42P01') {
               console.log('Profile table might not exist or RLS policy issues');
             }
-          } else {
-            console.log('Profile fetched successfully:', profileData);
+            setProfile(null);
+          } else if (profileData) {
+            console.log('✅ Profile fetched successfully:', {
+              role: profileData.role,
+              school_code: profileData.school_code,
+              full_name: profileData.full_name
+            });
+            setProfile(profileData);
           }
-          
-          setProfile(profileData as any);
         } catch (err) {
           console.error('Profile fetch failed:', err);
           setProfile(null);
