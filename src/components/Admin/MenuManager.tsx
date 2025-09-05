@@ -102,7 +102,8 @@ export const MenuManager = ({
       allergens: prev.allergens.includes(allergen) ? prev.allergens.filter(a => a !== allergen) : [...prev.allergens, allergen]
     }));
   };
-  const handleSaveItem = () => {
+  const handleSaveItem = async () => {
+    console.log('Saving item with data:', formData);
     const newItem: MenuItem = {
       id: editingItem?.id || `new_${Date.now()}`,
       ...formData
@@ -124,7 +125,21 @@ export const MenuManager = ({
       const categoryKey = `${formData.category}Options` as keyof DayMenu;
       (updatedDay[categoryKey] as MenuItem[]).push(newItem);
     }
+    
+    // Update local state first
     onUpdateMenu(selectedDay, updatedDay);
+    
+    // Create updated menu with the new item
+    const updatedWeekMenu = [...weekMenu];
+    updatedWeekMenu[selectedDay] = updatedDay;
+    
+    // Save to database automatically
+    console.log('Auto-saving updated menu to database...');
+    const success = await saveMenuToDatabase(updatedWeekMenu);
+    if (success) {
+      console.log('Menu saved successfully');
+    }
+    
     setIsDialogOpen(false);
   };
   const handleDeleteItem = (itemId: string, category: 'meal1' | 'meal2' | 'side') => {
