@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Layout/Header";
 import { MenuManager } from "@/components/Admin/MenuManager";
 import { Analytics } from "@/components/Admin/Analytics";
+import { WeeklyOrders } from "@/components/Admin/WeeklyOrders";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockMenuData, DayMenu } from "@/data/menuData";
 import { useMenuItems } from "@/hooks/useMenuItems";
@@ -49,8 +50,9 @@ const AdminDashboard = () => {
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Main Content Tabs */}
         <Tabs defaultValue="menu" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="menu">Управління меню</TabsTrigger>
+            <TabsTrigger value="orders">Замовлення на тиждень</TabsTrigger>
             <TabsTrigger value="analytics">Аналітика та звіти</TabsTrigger>
           </TabsList>
           
@@ -59,6 +61,10 @@ const AdminDashboard = () => {
               weekMenu={weekMenu}
               onUpdateMenu={handleUpdateMenu}
             />
+          </TabsContent>
+
+          <TabsContent value="orders" className="mt-6">
+            <WeeklyOrders />
           </TabsContent>
           
           <TabsContent value="analytics" className="mt-6">
