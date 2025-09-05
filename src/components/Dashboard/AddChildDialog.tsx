@@ -20,7 +20,7 @@ interface AddChildDialogProps {
 export const AddChildDialog = ({ onChildAdded }: AddChildDialogProps) => {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const handleSubmit = async (data: ChildFormData) => {
     if (!user) {
@@ -36,7 +36,8 @@ export const AddChildDialog = ({ onChildAdded }: AddChildDialogProps) => {
           name: data.name,
           grade: data.grade,
           allergies: data.allergies,
-          parent_id: user.id
+          parent_id: user.id,
+          school_code: profile?.school_code || ''
         });
 
       if (error) {

@@ -23,7 +23,7 @@ interface MenuViewProps {
 }
 
 export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { loadMenuFromDatabase } = useMenuItems();
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [children, setChildren] = useState<Child[]>([]);
@@ -186,7 +186,8 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
             child_id: currentChild,
             meal_name: mealName,
             meal_date: currentDay.date,
-            meal_type: mealType
+            meal_type: mealType,
+            school_code: profile?.school_code || ''
           }));
         });
 

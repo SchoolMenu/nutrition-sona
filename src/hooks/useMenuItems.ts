@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DayMenu, MenuItem } from '@/data/menuData';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useMenuItems = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { profile } = useAuth();
 
   const saveMenuToDatabase = async (weekMenu: DayMenu[]) => {
     console.log('Starting save operation with weekMenu:', weekMenu);
@@ -42,7 +44,8 @@ export const useMenuItems = () => {
             allergens: item.allergens,
             category: 'meal1',
             day_name: day.dayName,
-            menu_date: dayDate
+            menu_date: dayDate,
+            school_code: profile?.school_code || ''
           });
         }
         
@@ -55,7 +58,8 @@ export const useMenuItems = () => {
             allergens: item.allergens,
             category: 'meal2',
             day_name: day.dayName,
-            menu_date: dayDate
+            menu_date: dayDate,
+            school_code: profile?.school_code || ''
           });
         }
         
@@ -68,7 +72,8 @@ export const useMenuItems = () => {
             allergens: item.allergens,
             category: 'side',
             day_name: day.dayName,
-            menu_date: dayDate
+            menu_date: dayDate,
+            school_code: profile?.school_code || ''
           });
         }
       }
