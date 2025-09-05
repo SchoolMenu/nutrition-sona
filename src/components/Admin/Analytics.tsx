@@ -221,7 +221,7 @@ export const Analytics = () => {
                     <div>
                       <h4 className="font-medium text-foreground">{student.studentName}</h4>
                       <p className="text-sm text-muted-foreground">
-                        {student.grade} клас • Батько: {student.parentName}
+                        {student.grade} клас
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {student.ordersCount} замовлень цього місяця
