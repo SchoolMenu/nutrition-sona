@@ -39,33 +39,37 @@ const AdminDashboard = () => {
     const loadMenu = async () => {
       setIsLoadingMenu(true);
       try {
-        const { start, end } = getWeekDates(selectedWeekOffset);
+        const { start, end, startDate } = getWeekDates(selectedWeekOffset);
         const dbMenu = await loadMenuFromDatabase(start, end);
         
-        if (dbMenu && dbMenu.length > 0) {
-          setWeekMenu(dbMenu);
-        } else {
-          // Generate empty menu structure for the selected week
-          const { startDate } = getWeekDates(selectedWeekOffset);
-          const emptyWeekMenu: DayMenu[] = [];
+        // Always generate all 5 days of the week structure
+        const dayNames = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
+        const fullWeekMenu: DayMenu[] = [];
+        
+        for (let i = 0; i < 5; i++) {
+          const currentDay = new Date(startDate);
+          currentDay.setDate(startDate.getDate() + i);
+          const dateStr = currentDay.toISOString().split('T')[0];
           
-          for (let i = 0; i < 5; i++) {
-            const currentDay = new Date(startDate);
-            currentDay.setDate(startDate.getDate() + i);
-            
-            const dayNames = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
-            
-            emptyWeekMenu.push({
-              date: currentDay.toISOString().split('T')[0],
+          // Find existing data for this date
+          const existingDay = dbMenu?.find(day => day.date === dateStr);
+          
+          if (existingDay) {
+            // Use existing data
+            fullWeekMenu.push(existingDay);
+          } else {
+            // Create empty day structure
+            fullWeekMenu.push({
+              date: dateStr,
               dayName: dayNames[i],
               meal1Options: [],
               meal2Options: [],
               sideOptions: []
             });
           }
-          
-          setWeekMenu(emptyWeekMenu);
         }
+        
+        setWeekMenu(fullWeekMenu);
       } finally {
         setIsLoadingMenu(false);
       }
