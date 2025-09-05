@@ -212,10 +212,10 @@ export const MenuManager = ({
 
       {/* Menu editor */}
       <Tabs defaultValue="meal1" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 gap-1">
-          <TabsTrigger value="meal1" className="text-xs sm:text-sm my-0 py-0 px-[6px]">Перша страва</TabsTrigger>
-          <TabsTrigger value="meal2" className="text-xs sm:text-sm py-0">Друга страва</TabsTrigger>
-          <TabsTrigger value="side" className="text-xs sm:text-sm py-0">Додатково</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="meal1" className="text-sm">Перша страва</TabsTrigger>
+          <TabsTrigger value="meal2" className="text-sm">Друга страва</TabsTrigger>
+          <TabsTrigger value="side" className="text-sm">Додатково</TabsTrigger>
         </TabsList>
         
         <TabsContent value="meal1" className="mt-4">
