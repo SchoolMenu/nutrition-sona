@@ -203,11 +203,35 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
 
     const key = `${currentDay.date}-${mealType}`;
     
-    // Update pending selections (not saved yet)
-    setPendingSelections(prev => ({
-      ...prev,
-      [key]: [meal.name]
-    }));
+    // For side dishes, allow multiple selections (up to 2)
+    if (mealType === 'side') {
+      setPendingSelections(prev => {
+        const currentSelections = prev[key] || [];
+        const isSelected = currentSelections.includes(meal.name);
+        
+        if (isSelected) {
+          // Remove if already selected
+          return {
+            ...prev,
+            [key]: currentSelections.filter(name => name !== meal.name)
+          };
+        } else if (currentSelections.length < 2) {
+          // Add if less than 2 items selected
+          return {
+            ...prev,
+            [key]: [...currentSelections, meal.name]
+          };
+        }
+        // Don't add if already 2 items selected
+        return prev;
+      });
+    } else {
+      // For main dishes, only one selection allowed
+      setPendingSelections(prev => ({
+        ...prev,
+        [key]: [meal.name]
+      }));
+    }
   };
 
   const saveSelections = async () => {
@@ -526,7 +550,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Clock className="h-5 w-5" />
-                Додатково
+                Додатково (можна обрати до 2 страв)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -563,6 +587,8 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                     ? 'Алергія' 
                     : getCurrentSelections('side').includes(meal.name)
                     ? 'Обрано'
+                    : getCurrentSelections('side').length >= 2 && !getCurrentSelections('side').includes(meal.name)
+                    ? 'Макс. 2 страви'
                     : 'Вибрати'
                   }
                 </Button>
