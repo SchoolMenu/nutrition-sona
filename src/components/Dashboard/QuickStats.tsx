@@ -6,47 +6,34 @@ interface QuickStatsProps {
   mealsThisWeek: number;
   upcomingMeals: number;
   monthlySpent: number;
-  monthlyBudget: number;
-  remainingBudget: number;
 }
 
 export const QuickStats = ({ 
   weeklySpent, 
   mealsThisWeek, 
   upcomingMeals, 
-  monthlySpent,
-  monthlyBudget,
-  remainingBudget
+  monthlySpent
 }: QuickStatsProps) => {
-  const budgetPercentageRemaining = monthlyBudget > 0 ? Math.round((remainingBudget / monthlyBudget) * 100) : 0;
   const stats = [
     {
       title: "Цього тижня",
       value: `₴${weeklySpent}`,
-      icon: CreditCard,
-      change: "+12%",
-      changeType: "increase" as const
+      icon: CreditCard
     },
     {
       title: "Страв замовлено",
       value: mealsThisWeek.toString(),
-      icon: Utensils,
-      change: "+3",
-      changeType: "increase" as const
+      icon: Utensils
     },
     {
       title: "Наступних обідів",
       value: upcomingMeals.toString(),
-      icon: Calendar,
-      change: "На цей тиждень",
-      changeType: "neutral" as const
+      icon: Calendar
     },
     {
       title: "Витрачено за місяць",
       value: `₴${monthlySpent}`,
-      icon: TrendingUp,
-      change: `Залишилося ₴${remainingBudget}`,
-      changeType: remainingBudget > monthlyBudget * 0.2 ? "neutral" : "decrease" as const
+      icon: TrendingUp
     }
   ];
 
@@ -62,15 +49,6 @@ export const QuickStats = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-            <p className={`text-xs mt-1 ${
-              stat.changeType === 'increase' 
-                ? 'text-success' 
-                : stat.changeType === 'decrease'
-                ? 'text-destructive'
-                : 'text-muted-foreground'
-            }`}>
-              {stat.change}
-            </p>
           </CardContent>
         </Card>
       ))}

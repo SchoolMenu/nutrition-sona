@@ -93,8 +93,6 @@ const Dashboard = () => {
               mealsThisWeek={stats.mealsThisWeek}
               upcomingMeals={stats.upcomingMeals}
               monthlySpent={stats.monthlySpent}
-              monthlyBudget={stats.monthlyBudget}
-              remainingBudget={stats.remainingBudget}
             />
             
             {loading ? (
