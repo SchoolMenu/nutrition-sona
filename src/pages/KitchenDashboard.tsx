@@ -113,24 +113,26 @@ const KitchenDashboard = () => {
                 // Group orders by dish
                 const dishMap = new Map();
                 orders.forEach(order => {
-                  // Add meal1
-                  if (!dishMap.has(order.meal1)) {
-                    dishMap.set(order.meal1, []);
+                  // Add main meal
+                  if (!dishMap.has(order.mainMeal)) {
+                    dishMap.set(order.mainMeal, []);
                   }
-                  dishMap.get(order.meal1).push(`${order.studentName} (${order.grade} кл.)`);
+                  dishMap.get(order.mainMeal).push(`${order.studentName} (${order.grade} кл.)`);
                   
-                  // Add meal2
-                  if (!dishMap.has(order.meal2)) {
-                    dishMap.set(order.meal2, []);
-                  }
-                  dishMap.get(order.meal2).push(`${order.studentName} (${order.grade} кл.)`);
-                  
-                  // Add side if exists
-                  if (order.side) {
-                    if (!dishMap.has(order.side)) {
-                      dishMap.set(order.side, []);
+                  // Add fruit break if exists
+                  if (order.fruitBreak) {
+                    if (!dishMap.has(order.fruitBreak)) {
+                      dishMap.set(order.fruitBreak, []);
                     }
-                    dishMap.get(order.side).push(`${order.studentName} (${order.grade} кл.)`);
+                    dishMap.get(order.fruitBreak).push(`${order.studentName} (${order.grade} кл.)`);
+                  }
+                  
+                  // Add afternoon snack if exists
+                  if (order.afternoonSnack) {
+                    if (!dishMap.has(order.afternoonSnack)) {
+                      dishMap.set(order.afternoonSnack, []);
+                    }
+                    dishMap.get(order.afternoonSnack).push(`${order.studentName} (${order.grade} кл.)`);
                   }
                 });
                 
@@ -150,7 +152,7 @@ const KitchenDashboard = () => {
               ${orders.filter(order => order.allergies.length > 0).map(order => `
                 <div class="allergy-item">
                   <div class="student-name">${order.studentName} (${order.grade} клас)</div>
-                  <div>Замовлення: ${order.meal1} + ${order.meal2}${order.side ? ` + ${order.side}` : ''}</div>
+                  <div>Замовлення: ${order.mainMeal}${order.fruitBreak ? ` + ${order.fruitBreak}` : ''}${order.afternoonSnack ? ` + ${order.afternoonSnack}` : ''}</div>
                   <div class="allergies">Алергії: ${order.allergies.join(', ')}</div>
                 </div>
               `).join('')}
