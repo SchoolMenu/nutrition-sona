@@ -35,26 +35,43 @@ export const StudentOrderStats = () => {
 
   if (!stats) return null;
 
-  // Sort students within each dish choice
-  const getSortedDishStats = () => {
-    return stats.dishChoiceStats.map(dish => ({
-      ...dish,
-      students: [...dish.students].sort((a, b) => {
-        switch (sortBy) {
-          case 'grade':
-            const gradeA = parseInt(a.grade) || 0;
-            const gradeB = parseInt(b.grade) || 0;
-            return gradeA - gradeB;
-          case 'name':
-            return a.name.localeCompare(b.name, 'uk');
-          default:
-            return 0;
+  // Group students by class and then by dish
+  const getClassBasedDishStats = () => {
+    const classMap = new Map<string, Map<string, string[]>>();
+    
+    stats.dishChoiceStats.forEach(dish => {
+      dish.students.forEach(student => {
+        if (!classMap.has(student.grade)) {
+          classMap.set(student.grade, new Map());
         }
+        
+        const classData = classMap.get(student.grade)!;
+        if (!classData.has(dish.dishName)) {
+          classData.set(dish.dishName, []);
+        }
+        
+        classData.get(dish.dishName)!.push(student.name);
+      });
+    });
+    
+    // Sort classes numerically
+    return Array.from(classMap.entries())
+      .sort(([gradeA], [gradeB]) => {
+        const numA = parseInt(gradeA) || 0;
+        const numB = parseInt(gradeB) || 0;
+        return numA - numB;
       })
-    }));
+      .map(([grade, dishes]) => ({
+        grade,
+        dishes: Array.from(dishes.entries()).map(([dishName, students]) => ({
+          dishName,
+          count: students.length,
+          students: sortBy === 'name' ? students.sort((a, b) => a.localeCompare(b, 'uk')) : students
+        }))
+      }));
   };
 
-  const sortedDishStats = getSortedDishStats();
+  const classBasedStats = getClassBasedDishStats();
 
   return (
     <div className="space-y-6">
@@ -153,30 +170,24 @@ export const StudentOrderStats = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {sortedDishStats.length > 0 ? (
-            <div className="space-y-4">
-              {sortedDishStats.map((dish, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border border-card-border rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-foreground">{dish.dishName}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Обрали: <span className="font-medium text-foreground">{dish.studentCount} учн.</span>
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {dish.students.slice(0, 5).map((student, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs">
-                          {student.name} ({student.grade})
-                        </Badge>
-                      ))}
-                      {dish.students.length > 5 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{dish.students.length - 5} ще
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-2xl font-bold text-primary">{dish.studentCount}</div>
+          {classBasedStats.length > 0 ? (
+            <div className="space-y-6">
+              {classBasedStats.map((classData, index) => (
+                <div key={index} className="border border-card-border rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-foreground mb-3">
+                    {classData.grade} клас:
+                  </h3>
+                  <div className="space-y-2">
+                    {classData.dishes.map((dish, dishIndex) => (
+                      <div key={dishIndex} className="text-sm">
+                        <span className="font-medium text-foreground">
+                          {dish.count} порцій {dish.dishName}
+                        </span>
+                        <span className="text-muted-foreground ml-2">
+                          ({dish.students.join(', ')})
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}

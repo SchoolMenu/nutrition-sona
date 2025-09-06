@@ -52,46 +52,62 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
     return sortedOrders;
   };
 
-  // Group orders by dish
-  const getDishSummary = (): DishSummary[] => {
-    const sortedOrders = getSortedOrders();
-    const dishMap = new Map<string, string[]>();
+  // Group orders by class and then by dish
+  const getClassBasedOrders = () => {
+    const classMap = new Map<string, Map<string, string[]>>();
     
     sortedOrders.forEach(order => {
-      // Add main meal
-      if (!dishMap.has(order.mainMeal)) {
-        dishMap.set(order.mainMeal, []);
+      if (!classMap.has(order.grade)) {
+        classMap.set(order.grade, new Map());
       }
-      dishMap.get(order.mainMeal)!.push(`${order.studentName} (${order.grade} кл.)`);
+      
+      const classData = classMap.get(order.grade)!;
+      
+      // Add main meal
+      if (!classData.has(order.mainMeal)) {
+        classData.set(order.mainMeal, []);
+      }
+      classData.get(order.mainMeal)!.push(order.studentName);
       
       // Add fruit break if exists
       if (order.fruitBreak) {
-        if (!dishMap.has(order.fruitBreak)) {
-          dishMap.set(order.fruitBreak, []);
+        if (!classData.has(order.fruitBreak)) {
+          classData.set(order.fruitBreak, []);
         }
-        dishMap.get(order.fruitBreak)!.push(`${order.studentName} (${order.grade} кл.)`);
+        classData.get(order.fruitBreak)!.push(order.studentName);
       }
       
       // Add afternoon snack if exists
       if (order.afternoonSnack) {
-        if (!dishMap.has(order.afternoonSnack)) {
-          dishMap.set(order.afternoonSnack, []);
+        if (!classData.has(order.afternoonSnack)) {
+          classData.set(order.afternoonSnack, []);
         }
-        dishMap.get(order.afternoonSnack)!.push(`${order.studentName} (${order.grade} кл.)`);
+        classData.get(order.afternoonSnack)!.push(order.studentName);
       }
     });
     
-    return Array.from(dishMap.entries()).map(([dishName, students]) => ({
-      dishName,
-      count: students.length,
-      students
-    }));
+    // Sort classes numerically
+    return Array.from(classMap.entries())
+      .sort(([gradeA], [gradeB]) => {
+        const numA = parseInt(gradeA) || 0;
+        const numB = parseInt(gradeB) || 0;
+        return numA - numB;
+      })
+      .map(([grade, dishes]) => ({
+        grade,
+        dishes: Array.from(dishes.entries()).map(([dishName, students]) => ({
+          dishName,
+          count: students.length,
+          students: sortBy === 'name' ? students.sort((a, b) => a.localeCompare(b, 'uk')) : students
+        }))
+      }));
   };
 
   const sortedOrders = getSortedOrders();
-  const dishSummaries = getDishSummary();
+  const classBasedOrders = getClassBasedOrders();
   const totalStudents = orders.length;
   const studentsWithAllergies = orders.filter(order => order.allergies.length > 0).length;
+  const totalDishes = classBasedOrders.reduce((acc, classData) => acc + classData.dishes.length, 0);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -133,8 +149,8 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
             <div className="flex items-center gap-3">
               <ChefHat className="h-8 w-8 text-warning" />
               <div>
-                <div className="text-xl font-bold text-foreground">{dishSummaries.length}</div>
-                <div className="text-sm text-muted-foreground">Різних страв</div>
+                <div className="text-xl font-bold text-foreground">{totalDishes}</div>
+                <div className="text-sm text-muted-foreground">Типів страв</div>
               </div>
             </div>
           </CardContent>
@@ -178,29 +194,34 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {dishSummaries.map((dish, index) => (
-            <div key={index} className="flex items-center justify-between p-4 border border-card-border rounded-lg">
-              <div className="flex-1">
-                <h4 className="font-medium text-foreground">{dish.dishName}</h4>
-                <p className="text-sm text-muted-foreground">
-                  Порцій: <span className="font-medium text-foreground">{dish.count}</span>
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {dish.students.slice(0, 3).map((student, idx) => (
-                    <Badge key={idx} variant="secondary" className="text-xs">
-                      {student}
-                    </Badge>
+        <CardContent className="space-y-6">
+          {classBasedOrders.length > 0 ? (
+            classBasedOrders.map((classData, index) => (
+              <div key={index} className="border border-card-border rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-foreground mb-3">
+                  {classData.grade} клас:
+                </h3>
+                <div className="space-y-2">
+                  {classData.dishes.map((dish, dishIndex) => (
+                    <div key={dishIndex} className="text-sm">
+                      <span className="font-medium text-foreground">
+                        {dish.count} порцій {dish.dishName}
+                      </span>
+                      <span className="text-muted-foreground ml-2">
+                        ({dish.students.join(', ')})
+                      </span>
+                    </div>
                   ))}
-                  {dish.students.length > 3 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{dish.students.length - 3} ще
-                    </Badge>
-                  )}
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="text-center py-8">
+              <ChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">Немає замовлень</h3>
+              <p className="text-muted-foreground">На сьогодні ще немає замовлень від учнів</p>
             </div>
-          ))}
+          )}
         </CardContent>
       </Card>
 
