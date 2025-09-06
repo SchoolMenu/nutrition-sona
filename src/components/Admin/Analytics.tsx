@@ -1,12 +1,58 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, TrendingUp, Users, DollarSign, Download, Calendar } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BarChart3, TrendingUp, Users, DollarSign, Download, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { StudentOrderStats } from "./StudentOrderStats";
-import { useRealAnalytics } from "@/hooks/useRealAnalytics";
+import { useMonthlyAnalytics } from "@/hooks/useMonthlyAnalytics";
 
 export const Analytics = () => {
-  const { analytics: monthlyStats, loading, error } = useRealAnalytics();
+  const currentDate = new Date();
+  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
+  
+  const { analytics: monthlyStats, loading, error } = useMonthlyAnalytics(selectedYear, selectedMonth);
+
+  const months = [
+    { value: 1, label: 'Січень' },
+    { value: 2, label: 'Лютий' },
+    { value: 3, label: 'Березень' },
+    { value: 4, label: 'Квітень' },
+    { value: 5, label: 'Травень' },
+    { value: 6, label: 'Червень' },
+    { value: 7, label: 'Липень' },
+    { value: 8, label: 'Серпень' },
+    { value: 9, label: 'Вересень' },
+    { value: 10, label: 'Жовтень' },
+    { value: 11, label: 'Листопад' },
+    { value: 12, label: 'Грудень' }
+  ];
+
+  const years = Array.from({ length: 5 }, (_, i) => currentDate.getFullYear() - 2 + i);
+
+  const handlePrevMonth = () => {
+    if (selectedMonth === 1) {
+      setSelectedMonth(12);
+      setSelectedYear(selectedYear - 1);
+    } else {
+      setSelectedMonth(selectedMonth - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (selectedMonth === 12) {
+      setSelectedMonth(1);
+      setSelectedYear(selectedYear + 1);
+    } else {
+      setSelectedMonth(selectedMonth + 1);
+    }
+  };
+
+  const getSelectedMonthLabel = () => {
+    const month = months.find(m => m.value === selectedMonth);
+    return `${month?.label} ${selectedYear}`;
+  };
 
   if (loading) {
     return (
@@ -31,6 +77,7 @@ export const Analytics = () => {
   const exportToCSV = () => {
     const csvData = [
       ['Звіт про аналітику харчування'],
+      ['Період: ' + getSelectedMonthLabel()],
       ['Дата створення: ' + new Date().toLocaleDateString('uk-UA')],
       [''],
       ['ЗАГАЛЬНА СТАТИСТИКА'],
@@ -63,7 +110,7 @@ export const Analytics = () => {
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `analytics-report-${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `analytics-report-${getSelectedMonthLabel().replace(' ', '-')}-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -73,6 +120,7 @@ export const Analytics = () => {
   const exportBilling = () => {
     const csvData = [
       ['Розрахунки по учням'],
+      ['Період: ' + getSelectedMonthLabel()],
       ['Дата створення: ' + new Date().toLocaleDateString('uk-UA')],
       [''],
       ['Учень', 'Клас', 'Батьки', 'Замовлень за місяць', 'Загальна сума'],
@@ -89,7 +137,7 @@ export const Analytics = () => {
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `student-billing-${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `student-billing-${getSelectedMonthLabel().replace(' ', '-')}-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -100,7 +148,7 @@ export const Analytics = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Аналітика та звіти</h2>
-          <p className="text-muted-foreground">Статистика продажів та замовлень</p>
+          <p className="text-muted-foreground">Статистика продажів та замовлень за {getSelectedMonthLabel()}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportReport}>
@@ -109,6 +157,67 @@ export const Analytics = () => {
           </Button>
         </div>
       </div>
+
+      {/* Month Selector */}
+      <Card className="border-card-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Вибір періоду
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrevMonth}
+              className="flex items-center gap-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Попередній
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              <Select value={selectedMonth.toString()} onValueChange={(value) => setSelectedMonth(parseInt(value))}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map((month) => (
+                    <SelectItem key={month.value} value={month.value.toString()}>
+                      {month.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNextMonth}
+              className="flex items-center gap-2"
+            >
+              Наступний
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -121,7 +230,7 @@ export const Analytics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">₴{monthlyStats.totalRevenue}</div>
-            <p className="text-xs text-success mt-1">Поточний місяць</p>
+            <p className="text-xs text-success mt-1">{getSelectedMonthLabel()}</p>
           </CardContent>
         </Card>
 
@@ -134,7 +243,7 @@ export const Analytics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">{monthlyStats.totalOrders}</div>
-            <p className="text-xs text-success mt-1">Поточний місяць</p>
+            <p className="text-xs text-success mt-1">{getSelectedMonthLabel()}</p>
           </CardContent>
         </Card>
 
