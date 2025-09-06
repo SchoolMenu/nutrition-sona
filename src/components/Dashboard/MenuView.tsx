@@ -455,7 +455,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
             <div className="flex items-center gap-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Clock className="h-5 w-5" />
-                Перша страва
+                Фруктова перерва (опційно)
               </CardTitle>
               <HelpTooltip content="Виберіть одну головну страву для обіду. Страви з алергенами будуть заблоковані, якщо у дитини є відповідні алергії." />
             </div>
@@ -507,7 +507,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Clock className="h-5 w-5" />
-              Друга страва
+              Комплексний обід
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -559,7 +559,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
               <div className="flex items-center gap-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Clock className="h-5 w-5" />
-                  Додатково (можна обрати до 2 страв)
+                  Підвечірок (опційно)
                 </CardTitle>
                 <HelpTooltip content="Ви можете обрати до 2 додаткових страв. Це може бути десерт, салат, напій або інші доповнення до основного обіду." />
               </div>
