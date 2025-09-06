@@ -338,9 +338,6 @@ export const Analytics = () => {
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-bold text-foreground">₴{student.totalAmount}</div>
-                      <Button variant="outline" size="sm" className="mt-1">
-                        Деталі
-                      </Button>
                     </div>
                   </div>
                 ))}
