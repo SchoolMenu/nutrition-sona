@@ -4,16 +4,16 @@ export interface MenuItem {
   description: string;
   price: number;
   allergens: string[];
-  category: 'meal1' | 'meal2' | 'side';
+  category: 'fruit_break' | 'main_meal' | 'afternoon_snack';
   imageUrl?: string;
 }
 
 export interface DayMenu {
   date: string;
   dayName: string;
-  meal1Options: MenuItem[];
-  meal2Options: MenuItem[];
-  sideOptions: MenuItem[];
+  mainMealOptions: MenuItem[];
+  fruitBreakOptions: MenuItem[];
+  afternoonSnackOptions: MenuItem[];
 }
 
 export interface WeekMenu {
@@ -47,250 +47,210 @@ export const mockMenuData: WeekMenu = {
     {
       date: currentWeekDates[0],
       dayName: "Понеділок",
-      meal1Options: [
+      mainMealOptions: [
         {
-          id: "m1_1",
-          name: "Борщ український з сметаною",
-          description: "Традиційний червоний борщ з капустою, морквою, буряком та сметаною",
-          price: 45,
+          id: "main_1",
+          name: "Борщ український з котлетою",
+          description: "Комплексний обід: традиційний червоний борщ з сметаною та куряча котлета з картопляним пюре",
+          price: 85,
+          allergens: ["Молочні продукти", "Яйця"],
+          category: "main_meal"
+        },
+        {
+          id: "main_2", 
+          name: "Суп-пюре з гарбуза з рагу",
+          description: "Комплексний обід: ніжний крем-суп з гарбуза та овочеве рагу з рисом",
+          price: 75,
           allergens: ["Молочні продукти"],
-          category: "meal1"
-        },
-        {
-          id: "m1_2", 
-          name: "Суп-пюре з гарбуза",
-          description: "Ніжний крем-суп з гарбуза з вершками та гренками",
-          price: 40,
-          allergens: ["Молочні продукти", "Глютен"],
-          category: "meal1"
+          category: "main_meal"
         }
       ],
-      meal2Options: [
+      fruitBreakOptions: [
         {
-          id: "m2_1",
-          name: "Котлета куряча з картопляним пюре",
-          description: "Соковита котлета з курячого фаршу з ніжним картопляним пюре",
-          price: 55,
-          allergens: ["Яйця", "Молочні продукти"],
-          category: "meal2"
-        },
-        {
-          id: "m2_2",
-          name: "Рагу овочеве з рисом",
-          description: "Тушкована суміш овочів з рисом, збагачена зеленню",
-          price: 50,
-          allergens: [],
-          category: "meal2"
-        }
-      ],
-      sideOptions: [
-        {
-          id: "s1",
-          name: "Салат з свіжих овочів",
-          description: "Помідори, огірки, капуста з олією",
+          id: "fruit_1",
+          name: "Яблуко з компотом",
+          description: "Свіже яблуко з ароматним компотом з сухофруктів",
           price: 20,
           allergens: [],
-          category: "side"
+          category: "fruit_break"
+        }
+      ],
+      afternoonSnackOptions: [
+        {
+          id: "snack_1",
+          name: "Печиво з молоком",
+          description: "Домашнє печиво з склянкою теплого молока",
+          price: 25,
+          allergens: ["Молочні продукти", "Глютен"],
+          category: "afternoon_snack"
         }
       ]
     },
     {
       date: currentWeekDates[1],
       dayName: "Вівторок",
-      meal1Options: [
+      mainMealOptions: [
         {
-          id: "m1_3",
-          name: "Солянка м'ясна",
-          description: "Наваристий суп з ковбасою, оливками та солоними огірками",
-          price: 50,
+          id: "main_3",
+          name: "Солянка з голубцями",
+          description: "Комплексний обід: наваристий суп солянка з ковбасою та голубці з м'ясом",
+          price: 90,
           allergens: [],
-          category: "meal1"
+          category: "main_meal"
         },
         {
-          id: "m1_4",
-          name: "Суп овочевий з квасолею",
-          description: "Легкий овочевий суп з білою квасолею та зеленню",
-          price: 35,
+          id: "main_4",
+          name: "Суп овочевий з гречкою",
+          description: "Комплексний обід: легкий овочевый суп з квасолею та гречана каша з грибами",
+          price: 70,
           allergens: [],
-          category: "meal1"
+          category: "main_meal"
         }
       ],
-      meal2Options: [
+      fruitBreakOptions: [
         {
-          id: "m2_3",
-          name: "Голубці з м'ясом",
-          description: "Капустяні листя, фаршировані м'ясом та рисом",
-          price: 60,
+          id: "fruit_2",
+          name: "Груша з соком",
+          description: "Свіжа груша з натуральним яблучним соком",
+          price: 22,
           allergens: [],
-          category: "meal2"
-        },
-        {
-          id: "m2_4",
-          name: "Каша гречана з грибами",
-          description: "Розсипчаста гречка з тушкованими грибами та цибулею",
-          price: 45,
-          allergens: [],
-          category: "meal2"
+          category: "fruit_break"
         }
       ],
-      sideOptions: [
+      afternoonSnackOptions: [
         {
-          id: "s2",
-          name: "Винегрет",
-          description: "Класичний салат з буряка, картоплі та солоних огірків",
-          price: 25,
-          allergens: [],
-          category: "side"
+          id: "snack_2",
+          name: "Йогурт з медом",
+          description: "Натуральний йогурт з ароматним медом",
+          price: 30,
+          allergens: ["Молочні продукти"],
+          category: "afternoon_snack"
         }
       ]
     },
     {
       date: currentWeekDates[2],
       dayName: "Середа",
-      meal1Options: [
+      mainMealOptions: [
         {
-          id: "m1_5",
-          name: "Суп курячий з локшиною",
-          description: "Ароматний курячий бульйон з домашньою локшиною",
-          price: 45,
-          allergens: ["Глютен", "Яйця"],
-          category: "meal1"
+          id: "main_5",
+          name: "Курячий суп з рибними котлетами",
+          description: "Комплексний обід: ароматний курячий бульйон з локшиною та рибні котлети з овочами",
+          price: 95,
+          allergens: ["Глютен", "Яйця", "Риба"],
+          category: "main_meal"
         },
         {
-          id: "m1_6",
-          name: "Крем-суп з броколі",
-          description: "Вітамінний суп-пюре з броколі та сиром",
-          price: 40,
-          allergens: ["Молочні продукти"],
-          category: "meal1"
+          id: "main_6",
+          name: "Крем-суп з макаронами",
+          description: "Комплексний обід: вітамінний суп-пюре з броколі та макарони з сиром",
+          price: 70,
+          allergens: ["Молочні продукти", "Глютен"],
+          category: "main_meal"
         }
       ],
-      meal2Options: [
+      fruitBreakOptions: [
         {
-          id: "m2_5",
-          name: "Рибні котлети з овочами",
-          description: "Котлети з морської риби з тушкованими овочами",
-          price: 65,
-          allergens: ["Риба", "Яйця"],
-          category: "meal2"
-        },
-        {
-          id: "m2_6",
-          name: "Макарони з сиром",
-          description: "Варені макарони під сирним соусом",
-          price: 40,
-          allergens: ["Глютен", "Молочні продукти"],
-          category: "meal2"
-        }
-      ],
-      sideOptions: [
-        {
-          id: "s3",
-          name: "Компот з сухофруктів",
-          description: "Традиційний компот з яблук, груш та чорносливу",
-          price: 15,
+          id: "fruit_3",
+          name: "Банан з компотом",
+          description: "Свіжий банан з компотом з сухофруктів",
+          price: 25,
           allergens: [],
-          category: "side"
+          category: "fruit_break"
+        }
+      ],
+      afternoonSnackOptions: [
+        {
+          id: "snack_3",
+          name: "Сирники з варенням",
+          description: "Ніжні сирники з домашнім варенням",
+          price: 35,
+          allergens: ["Молочні продукти", "Яйця", "Глютен"],
+          category: "afternoon_snack"
         }
       ]
     },
     {
       date: currentWeekDates[3],
       dayName: "Четвер",
-      meal1Options: [
+      mainMealOptions: [
         {
-          id: "m1_7",
-          name: "Борщ зелений зі щавлем",
-          description: "Весняний суп зі щавлем, яйцем та сметаною",
-          price: 40,
+          id: "main_7",
+          name: "Зелений борщ з печенею",
+          description: "Комплексний обід: весняний суп зі щавлем, яйцем, сметаною та тушкована яловична печеня з картоплею",
+          price: 100,
           allergens: ["Яйця", "Молочні продукти"],
-          category: "meal1"
+          category: "main_meal"
         },
         {
-          id: "m1_8",
-          name: "Суп з фрикадельками",
-          description: "М'ясні фрикадельки в овочевому бульйоні",
-          price: 45,
-          allergens: ["Яйця"],
-          category: "meal1"
+          id: "main_8",
+          name: "Суп з фрикадельками та сирники",
+          description: "Комплексний обід: м'ясні фрикадельки в овочевому бульйоні та солодкі сирники",
+          price: 80,
+          allergens: ["Яйця", "Молочні продукти", "Глютен"],
+          category: "main_meal"
         }
       ],
-      meal2Options: [
+      fruitBreakOptions: [
         {
-          id: "m2_7",
-          name: "Печеня яловича з картоплею",
-          description: "Тушкована яловичина з молодою картоплею",
-          price: 70,
+          id: "fruit_4",
+          name: "Апельсин з киселем",
+          description: "Свіжий апельсин з густим ягідним киселем",
+          price: 28,
           allergens: [],
-          category: "meal2"
-        },
-        {
-          id: "m2_8",
-          name: "Сирники з варенням",
-          description: "Ніжні сирники з домашнім варенням",
-          price: 45,
-          allergens: ["Молочні продукти", "Яйця", "Глютен"],
-          category: "meal2"
+          category: "fruit_break"
         }
       ],
-      sideOptions: [
+      afternoonSnackOptions: [
         {
-          id: "s4",
-          name: "Кисіль ягідний",
-          description: "Густий кисіль з лісових ягід",
-          price: 18,
-          allergens: [],
-          category: "side"
+          id: "snack_4",
+          name: "Булочка з какао",
+          description: "Свіжа булочка з гарячим какао",
+          price: 30,
+          allergens: ["Глютен", "Молочні продукти", "Яйця"],
+          category: "afternoon_snack"
         }
       ]
     },
     {
       date: currentWeekDates[4],
       dayName: "П'ятниця",
-      meal1Options: [
+      mainMealOptions: [
         {
-          id: "m1_9",
-          name: "Суп гороховий з копченостями",
-          description: "Ситний гороховий суп з копченими ребрами",
-          price: 50,
-          allergens: [],
-          category: "meal1"
-        },
-        {
-          id: "m1_10",
-          name: "Суп молочний з вермішеллю",
-          description: "Солодкий молочний суп з тонкою вермішеллю",
-          price: 35,
-          allergens: ["Молочні продукти", "Глютен"],
-          category: "meal1"
-        }
-      ],
-      meal2Options: [
-        {
-          id: "m2_9",
-          name: "Вареники з картоплею",
-          description: "Домашні вареники з картопляною начинкою та сметаною",
-          price: 50,
+          id: "main_9",
+          name: "Гороховий суп з варениками",
+          description: "Комплексний обід: ситний гороховий суп з копченостями та домашні вареники з картоплею",
+          price: 85,
           allergens: ["Глютен", "Яйця", "Молочні продукти"],
-          category: "meal2"
+          category: "main_meal"
         },
         {
-          id: "m2_10",
-          name: "Каша вівсяна з фруктами",
-          description: "Корисна вівсянка з яблуками та родзинками",
-          price: 35,
-          allergens: ["Глютен"],
-          category: "meal2"
+          id: "main_10",
+          name: "Молочний суп з вівсянкою",
+          description: "Комплексний обід: солодкий молочний суп з вермішеллю та корисна вівсянка з фруктами",
+          price: 60,
+          allergens: ["Молочні продукти", "Глютен"],
+          category: "main_meal"
         }
       ],
-      sideOptions: [
+      fruitBreakOptions: [
         {
-          id: "s5",
-          name: "Йогурт натуральний",
-          description: "Домашній йогурт з живими бактеріями",
-          price: 25,
-          allergens: ["Молочні продукти"],
-          category: "side"
+          id: "fruit_5",
+          name: "Виноград з соком",
+          description: "Свіжий виноград з натуральним виноградним соком",
+          price: 30,
+          allergens: [],
+          category: "fruit_break"
+        }
+      ],
+      afternoonSnackOptions: [
+        {
+          id: "snack_5",
+          name: "Кекс з чаєм",
+          description: "Домашній кекс з ароматним чаєм",
+          price: 28,
+          allergens: ["Глютен", "Яйця", "Молочні продукти"],
+          category: "afternoon_snack"
         }
       ]
     }

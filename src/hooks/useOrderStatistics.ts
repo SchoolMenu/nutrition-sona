@@ -28,7 +28,7 @@ export const useOrderStatistics = () => {
   const getMealPrice = (mealName: string): number => {
     // Map meal names to prices from mock data
     for (const day of mockMenuData.days) {
-      const allMeals = [...day.meal1Options, ...day.meal2Options, ...day.sideOptions];
+      const allMeals = [...day.mainMealOptions, ...day.fruitBreakOptions, ...day.afternoonSnackOptions];
       const meal = allMeals.find(m => m.name === mealName);
       if (meal) return meal.price;
     }

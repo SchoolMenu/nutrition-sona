@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Check, Save, CalendarDays } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Check, Save, CalendarDays, Apple } from "lucide-react";
 import { mockMenuData, type MenuItem, type DayMenu } from "@/data/menuData";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -78,9 +78,9 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
           fullWeekMenu.push({
             date: dateStr,
             dayName: dayNames[i],
-            meal1Options: [],
-            meal2Options: [],
-            sideOptions: []
+            mainMealOptions: [],
+            fruitBreakOptions: [],
+            afternoonSnackOptions: []
           });
         }
       }
@@ -204,8 +204,8 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
 
     const key = `${currentDay.date}-${mealType}`;
     
-    // For side dishes, allow multiple selections (up to 2)
-    if (mealType === 'side') {
+    // For afternoon snacks, allow multiple selections (up to 2)
+    if (mealType === 'afternoon_snack') {
       setPendingSelections(prev => {
         const currentSelections = prev[key] || [];
         const isSelected = currentSelections.includes(meal.name);
@@ -461,7 +461,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {currentDay.meal1Options.map((meal) => (
+            {currentDay.mainMealOptions.map((meal) => (
               <div key={meal.id} className="border rounded-lg p-4 space-y-2">
                 <div className="flex justify-between items-start">
                   <h4 className="font-medium">{meal.name}</h4>
@@ -482,17 +482,17 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                   variant="outline" 
                   size="sm" 
                   className="w-full"
-                  onClick={() => handleMealSelection(meal, 'meal1')}
+                  onClick={() => handleMealSelection(meal, 'main_meal')}
                   disabled={selectedChildObj && isChildAllergic(meal, selectedChildObj)}
                 >
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                  ) : getCurrentSelections('meal1').includes(meal.name) ? (
+                  ) : getCurrentSelections('main_meal').includes(meal.name) ? (
                     <Check className="h-4 w-4 mr-2" />
                   ) : null}
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
                     ? 'Алергія' 
-                    : getCurrentSelections('meal1').includes(meal.name)
+                    : getCurrentSelections('main_meal').includes(meal.name)
                     ? 'Обрано'
                     : 'Вибрати'
                   }
@@ -502,16 +502,19 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
           </CardContent>
         </Card>
 
-        {/* Meal 2 Options */}
+        {/* Fruit Break Options */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Clock className="h-5 w-5" />
-              Комплексний обід
-            </CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Apple className="h-5 w-5" />
+                Фруктова перерва (опційно)
+              </CardTitle>
+              <HelpTooltip content="Фруктова перерва - це необов'язкова опція. Можете вибрати або пропустити." />
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {currentDay.meal2Options.map((meal) => (
+            {currentDay.fruitBreakOptions.map((meal) => (
               <div key={meal.id} className="border rounded-lg p-4 space-y-2">
                 <div className="flex justify-between items-start">
                   <h4 className="font-medium">{meal.name}</h4>
@@ -532,17 +535,17 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                   variant="outline" 
                   size="sm" 
                   className="w-full"
-                  onClick={() => handleMealSelection(meal, 'meal2')}
+                  onClick={() => handleMealSelection(meal, 'fruit_break')}
                   disabled={selectedChildObj && isChildAllergic(meal, selectedChildObj)}
                 >
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                  ) : getCurrentSelections('meal2').includes(meal.name) ? (
+                  ) : getCurrentSelections('fruit_break').includes(meal.name) ? (
                     <Check className="h-4 w-4 mr-2" />
                   ) : null}
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
                     ? 'Алергія' 
-                    : getCurrentSelections('meal2').includes(meal.name)
+                    : getCurrentSelections('fruit_break').includes(meal.name)
                     ? 'Обрано'
                     : 'Вибрати'
                   }
@@ -552,8 +555,8 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
           </CardContent>
         </Card>
 
-        {/* Side Options */}
-        {currentDay.sideOptions.length > 0 && (
+        {/* Afternoon Snack Options */}
+        {currentDay.afternoonSnackOptions.length > 0 && (
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -561,11 +564,11 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                   <Clock className="h-5 w-5" />
                   Підвечірок (опційно)
                 </CardTitle>
-                <HelpTooltip content="Ви можете обрати до 2 додаткових страв. Це може бути десерт, салат, напій або інші доповнення до основного обіду." />
+                <HelpTooltip content="Підвечірок - це необов'язкова опція. Можете вибрати або пропустити." />
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {currentDay.sideOptions.map((meal) => (
+              {currentDay.afternoonSnackOptions.map((meal) => (
                 <div key={meal.id} className="border rounded-lg p-4 space-y-2">
                   <div className="flex justify-between items-start">
                     <h4 className="font-medium">{meal.name}</h4>
@@ -586,19 +589,19 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                   variant="outline" 
                   size="sm" 
                   className="w-full"
-                  onClick={() => handleMealSelection(meal, 'side')}
+                  onClick={() => handleMealSelection(meal, 'afternoon_snack')}
                   disabled={selectedChildObj && isChildAllergic(meal, selectedChildObj)}
                 >
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) ? (
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                  ) : getCurrentSelections('side').includes(meal.name) ? (
+                  ) : getCurrentSelections('afternoon_snack').includes(meal.name) ? (
                     <Check className="h-4 w-4 mr-2" />
                   ) : null}
                   {selectedChildObj && isChildAllergic(meal, selectedChildObj) 
                     ? 'Алергія' 
-                    : getCurrentSelections('side').includes(meal.name)
+                    : getCurrentSelections('afternoon_snack').includes(meal.name)
                     ? 'Обрано'
-                    : getCurrentSelections('side').length >= 2 && !getCurrentSelections('side').includes(meal.name)
+                    : getCurrentSelections('afternoon_snack').length >= 2 && !getCurrentSelections('afternoon_snack').includes(meal.name)
                     ? 'Макс. 2 страви'
                     : 'Вибрати'
                   }

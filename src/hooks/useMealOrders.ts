@@ -17,9 +17,9 @@ export interface StudentOrder {
   studentId: string;
   studentName: string;
   grade: string;
-  meal1: string;
-  meal2: string;
-  side?: string;
+  mainMeal: string; // Комплексний обід (обов'язково)
+  fruitBreak?: string; // Фруктова перерва (опційно)
+  afternoonSnack?: string; // Підвечірок (опційно)
   allergies: string[];
   specialNotes?: string;
 }
@@ -79,9 +79,9 @@ export const useMealOrders = (date: string) => {
       studentName: string;
       grade: string;
       allergies: string[];
-      meal1?: string;
-      meal2?: string;
-      side?: string;
+      mainMeal?: string;
+      fruitBreak?: string;
+      afternoonSnack?: string;
     }>();
 
     rawOrders.forEach((order: any) => {
@@ -108,25 +108,24 @@ export const useMealOrders = (date: string) => {
       const studentOrder = ordersByChild.get(childId)!;
       
       switch (order.meal_type) {
-        case 'meal1':
-          studentOrder.meal1 = dishName;
+        case 'main_meal':
+          studentOrder.mainMeal = dishName;
           break;
-        case 'meal2':
-          studentOrder.meal2 = dishName;
+        case 'fruit_break':
+          studentOrder.fruitBreak = dishName;
           break;
-        case 'side':
-          studentOrder.side = dishName;
+        case 'afternoon_snack':
+          studentOrder.afternoonSnack = dishName;
           break;
       }
     });
 
     // Convert to array and filter out incomplete orders
     const studentOrders: StudentOrder[] = Array.from(ordersByChild.values())
-      .filter(order => order.meal1 && order.meal2) // Require at least meal1 and meal2
+      .filter(order => order.mainMeal) // Require at least mainMeal
       .map(order => ({
         ...order,
-        meal1: order.meal1!,
-        meal2: order.meal2!,
+        mainMeal: order.mainMeal!,
       }));
 
     return studentOrders;

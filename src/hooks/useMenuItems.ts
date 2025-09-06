@@ -35,42 +35,42 @@ export const useMenuItems = () => {
       for (const day of weekMenu) {
         const dayDate = new Date(day.date).toISOString().split('T')[0];
         
-        // Add meal1 options
-        for (const item of day.meal1Options) {
+        // Add main meal options
+        for (const item of day.mainMealOptions) {
           menuItemsToInsert.push({
             name: item.name,
             description: item.description,
             price: item.price,
             allergens: item.allergens,
-            category: 'meal1',
+            category: 'main_meal',
             day_name: day.dayName,
             menu_date: dayDate,
             school_code: profile?.school_code || ''
           });
         }
         
-        // Add meal2 options
-        for (const item of day.meal2Options) {
+        // Add fruit break options
+        for (const item of day.fruitBreakOptions) {
           menuItemsToInsert.push({
             name: item.name,
             description: item.description,
             price: item.price,
             allergens: item.allergens,
-            category: 'meal2',
+            category: 'fruit_break',
             day_name: day.dayName,
             menu_date: dayDate,
             school_code: profile?.school_code || ''
           });
         }
         
-        // Add side options
-        for (const item of day.sideOptions) {
+        // Add afternoon snack options
+        for (const item of day.afternoonSnackOptions) {
           menuItemsToInsert.push({
             name: item.name,
             description: item.description,
             price: item.price,
             allergens: item.allergens,
-            category: 'side',
+            category: 'afternoon_snack',
             day_name: day.dayName,
             menu_date: dayDate,
             school_code: profile?.school_code || ''
@@ -139,9 +139,9 @@ export const useMenuItems = () => {
         const dayMenu: DayMenu = {
           date,
           dayName,
-          meal1Options: [],
-          meal2Options: [],
-          sideOptions: []
+          mainMealOptions: [],
+          fruitBreakOptions: [],
+          afternoonSnackOptions: []
         };
 
         items.forEach(item => {
@@ -155,14 +155,14 @@ export const useMenuItems = () => {
           };
 
           switch (item.category) {
-            case 'meal1':
-              dayMenu.meal1Options.push(menuItem);
+            case 'main_meal':
+              dayMenu.mainMealOptions.push(menuItem);
               break;
-            case 'meal2':
-              dayMenu.meal2Options.push(menuItem);
+            case 'fruit_break':
+              dayMenu.fruitBreakOptions.push(menuItem);
               break;
-            case 'side':
-              dayMenu.sideOptions.push(menuItem);
+            case 'afternoon_snack':
+              dayMenu.afternoonSnackOptions.push(menuItem);
               break;
           }
         });

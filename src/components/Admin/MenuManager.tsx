@@ -52,7 +52,7 @@ export const MenuManager = ({
     description: "",
     price: 0,
     allergens: [] as string[],
-    category: "meal1" as 'meal1' | 'meal2' | 'side'
+    category: "main_meal" as 'fruit_break' | 'main_meal' | 'afternoon_snack'
   });
 
   // Auto-fill price based on similar dish name
@@ -87,7 +87,7 @@ export const MenuManager = ({
   const handleSaveToDatabase = async () => {
     await saveMenuToDatabase(weekMenu);
   };
-  const openEditDialog = (item?: MenuItem, category?: 'meal1' | 'meal2' | 'side') => {
+  const openEditDialog = (item?: MenuItem, category?: 'fruit_break' | 'main_meal' | 'afternoon_snack') => {
     if (item) {
       setEditingItem(item);
       setFormData({
@@ -104,7 +104,7 @@ export const MenuManager = ({
         description: "",
         price: 0,
         allergens: [],
-        category: category || "meal1"
+        category: category || "main_meal"
       });
     }
     setShowSuggestion(false);
@@ -163,7 +163,7 @@ export const MenuManager = ({
     
     setIsDialogOpen(false);
   };
-  const handleDeleteItem = (itemId: string, category: 'meal1' | 'meal2' | 'side') => {
+  const handleDeleteItem = (itemId: string, category: 'fruit_break' | 'main_meal' | 'afternoon_snack') => {
     // Safety check
     if (!weekMenu[selectedDay]) {
       console.error('Selected day is invalid for delete:', selectedDay);
@@ -174,13 +174,13 @@ export const MenuManager = ({
     const updatedDay = {
       ...currentDay
     };
-    const categoryKey = `${category}Options` as keyof DayMenu;
+    const categoryKey = `${category === 'main_meal' ? 'mainMeal' : category === 'fruit_break' ? 'fruitBreak' : 'afternoonSnack'}Options` as keyof DayMenu;
     const categoryItems = updatedDay[categoryKey] as MenuItem[];
     const filteredItems = categoryItems.filter(item => item.id !== itemId);
     (updatedDay[categoryKey] as MenuItem[]) = filteredItems;
     onUpdateMenu(selectedDay, updatedDay);
   };
-  const renderMenuItems = (items: MenuItem[], category: 'meal1' | 'meal2' | 'side') => <div className="space-y-3">
+  const renderMenuItems = (items: MenuItem[], category: 'fruit_break' | 'main_meal' | 'afternoon_snack') => <div className="space-y-3">
       {items.map(item => <Card key={item.id} className="border-card-border">
           <CardContent className="p-4">
             <div className="flex items-start justify-between">
@@ -253,23 +253,23 @@ export const MenuManager = ({
       </Card>
 
       {/* Menu editor */}
-      <Tabs defaultValue="meal1" className="w-full">
+      <Tabs defaultValue="main_meal" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="meal1" className="text-sm">Перша страва</TabsTrigger>
-          <TabsTrigger value="meal2" className="text-sm">Друга страва</TabsTrigger>
-          <TabsTrigger value="side" className="text-sm">Додатково</TabsTrigger>
+          <TabsTrigger value="main_meal" className="text-sm">Комплексний обід</TabsTrigger>
+          <TabsTrigger value="fruit_break" className="text-sm">Фруктова перерва</TabsTrigger>
+          <TabsTrigger value="afternoon_snack" className="text-sm">Підвечірок</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="meal1" className="mt-4">
-          {renderMenuItems(weekMenu[selectedDay].meal1Options, 'meal1')}
+        <TabsContent value="main_meal" className="mt-4">
+          {renderMenuItems(weekMenu[selectedDay].mainMealOptions, 'main_meal')}
         </TabsContent>
         
-        <TabsContent value="meal2" className="mt-4">
-          {renderMenuItems(weekMenu[selectedDay].meal2Options, 'meal2')}
+        <TabsContent value="fruit_break" className="mt-4">
+          {renderMenuItems(weekMenu[selectedDay].fruitBreakOptions, 'fruit_break')}
         </TabsContent>
         
-        <TabsContent value="side" className="mt-4">
-          {renderMenuItems(weekMenu[selectedDay].sideOptions, 'side')}
+        <TabsContent value="afternoon_snack" className="mt-4">
+          {renderMenuItems(weekMenu[selectedDay].afternoonSnackOptions, 'afternoon_snack')}
         </TabsContent>
       </Tabs>
 
@@ -321,17 +321,17 @@ export const MenuManager = ({
               
               <div>
                 <Label htmlFor="category">Категорія</Label>
-                <Select value={formData.category} onValueChange={(value: 'meal1' | 'meal2' | 'side') => setFormData(prev => ({
-                ...prev,
+                <Select value={formData.category} onValueChange={(value: 'fruit_break' | 'main_meal' | 'afternoon_snack') => setFormData(prev => ({
+                  ...prev,
                 category: value
               }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="meal1">Перша страва</SelectItem>
-                    <SelectItem value="meal2">Друга страва</SelectItem>
-                    <SelectItem value="side">Додатково</SelectItem>
+                  <SelectItem value="main_meal">Комплексний обід</SelectItem>
+                  <SelectItem value="fruit_break">Фруктова перерва</SelectItem>
+                  <SelectItem value="afternoon_snack">Підвечірок</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

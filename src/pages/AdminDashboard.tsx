@@ -47,9 +47,9 @@ const AdminDashboard = () => {
             fullWeekMenu.push({
               date: dateStr,
               dayName: dayNames[i],
-              meal1Options: [],
-              meal2Options: [],
-              sideOptions: []
+              mainMealOptions: [],
+              fruitBreakOptions: [],
+              afternoonSnackOptions: []
             });
           }
         }

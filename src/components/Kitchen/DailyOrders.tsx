@@ -9,9 +9,9 @@ interface StudentOrder {
   studentId: string;
   studentName: string;
   grade: string;
-  meal1: string;
-  meal2: string;
-  side?: string;
+  mainMeal: string;
+  fruitBreak?: string;
+  afternoonSnack?: string;
   allergies: string[];
   specialNotes?: string;
 }
@@ -37,7 +37,6 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
     switch (sortBy) {
       case 'grade':
         sortedOrders.sort((a, b) => {
-          // Extract numeric part of grade for proper sorting
           const gradeA = parseInt(a.grade) || 0;
           const gradeB = parseInt(b.grade) || 0;
           return gradeA - gradeB;
@@ -47,7 +46,6 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
         sortedOrders.sort((a, b) => a.studentName.localeCompare(b.studentName, 'uk'));
         break;
       default:
-        // Keep original order
         break;
     }
     
@@ -60,24 +58,26 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
     const dishMap = new Map<string, string[]>();
     
     sortedOrders.forEach(order => {
-      // Add meal1
-      if (!dishMap.has(order.meal1)) {
-        dishMap.set(order.meal1, []);
+      // Add main meal
+      if (!dishMap.has(order.mainMeal)) {
+        dishMap.set(order.mainMeal, []);
       }
-      dishMap.get(order.meal1)!.push(`${order.studentName} (${order.grade} кл.)`);
+      dishMap.get(order.mainMeal)!.push(`${order.studentName} (${order.grade} кл.)`);
       
-      // Add meal2
-      if (!dishMap.has(order.meal2)) {
-        dishMap.set(order.meal2, []);
-      }
-      dishMap.get(order.meal2)!.push(`${order.studentName} (${order.grade} кл.)`);
-      
-      // Add side if exists
-      if (order.side) {
-        if (!dishMap.has(order.side)) {
-          dishMap.set(order.side, []);
+      // Add fruit break if exists
+      if (order.fruitBreak) {
+        if (!dishMap.has(order.fruitBreak)) {
+          dishMap.set(order.fruitBreak, []);
         }
-        dishMap.get(order.side)!.push(`${order.studentName} (${order.grade} кл.)`);
+        dishMap.get(order.fruitBreak)!.push(`${order.studentName} (${order.grade} кл.)`);
+      }
+      
+      // Add afternoon snack if exists
+      if (order.afternoonSnack) {
+        if (!dishMap.has(order.afternoonSnack)) {
+          dishMap.set(order.afternoonSnack, []);
+        }
+        dishMap.get(order.afternoonSnack)!.push(`${order.studentName} (${order.grade} кл.)`);
       }
     });
     
@@ -224,8 +224,9 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
                       {order.studentName} ({order.grade} клас)
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {order.meal1} + {order.meal2}
-                      {order.side && ` + ${order.side}`}
+                      {order.mainMeal}
+                      {order.fruitBreak && ` + ${order.fruitBreak}`}
+                      {order.afternoonSnack && ` + ${order.afternoonSnack}`}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1">
