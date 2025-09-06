@@ -452,7 +452,7 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
             <div className="flex items-center gap-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Clock className="h-5 w-5" />
-                Фруктова перерва (опційно)
+                Обід
               </CardTitle>
               <HelpTooltip content="Виберіть одну головну страву для обіду. Страви з алергенами будуть заблоковані, якщо у дитини є відповідні алергії." />
             </div>
