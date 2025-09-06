@@ -167,12 +167,12 @@ export const Analytics = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
               variant="outline"
               size="sm"
               onClick={handlePrevMonth}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 min-w-[120px]"
             >
               <ChevronLeft className="h-4 w-4" />
               Попередній
@@ -210,7 +210,7 @@ export const Analytics = () => {
               variant="outline"
               size="sm"
               onClick={handleNextMonth}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 min-w-[120px]"
             >
               Наступний
               <ChevronRight className="h-4 w-4" />
