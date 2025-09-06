@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, ChefHat, CheckCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar, Users, ChefHat, CheckCircle, ArrowUpDown } from "lucide-react";
 
 interface StudentOrder {
   studentId: string;
@@ -26,11 +28,38 @@ interface DailyOrdersProps {
 }
 
 export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
+  const [sortBy, setSortBy] = useState<'grade' | 'name' | 'none'>('grade');
+
+  // Sort orders based on selected criteria
+  const getSortedOrders = () => {
+    let sortedOrders = [...orders];
+    
+    switch (sortBy) {
+      case 'grade':
+        sortedOrders.sort((a, b) => {
+          // Extract numeric part of grade for proper sorting
+          const gradeA = parseInt(a.grade) || 0;
+          const gradeB = parseInt(b.grade) || 0;
+          return gradeA - gradeB;
+        });
+        break;
+      case 'name':
+        sortedOrders.sort((a, b) => a.studentName.localeCompare(b.studentName, 'uk'));
+        break;
+      default:
+        // Keep original order
+        break;
+    }
+    
+    return sortedOrders;
+  };
+
   // Group orders by dish
   const getDishSummary = (): DishSummary[] => {
+    const sortedOrders = getSortedOrders();
     const dishMap = new Map<string, string[]>();
     
-    orders.forEach(order => {
+    sortedOrders.forEach(order => {
       // Add meal1
       if (!dishMap.has(order.meal1)) {
         dishMap.set(order.meal1, []);
@@ -59,6 +88,7 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
     }));
   };
 
+  const sortedOrders = getSortedOrders();
   const dishSummaries = getDishSummary();
   const totalStudents = orders.length;
   const studentsWithAllergies = orders.filter(order => order.allergies.length > 0).length;
@@ -78,9 +108,24 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
             })}
           </p>
         </div>
-        <div className="text-right">
-          <div className="text-2xl font-bold text-primary">{totalStudents}</div>
-          <div className="text-sm text-muted-foreground">учнів</div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+            <Select value={sortBy} onValueChange={(value: 'grade' | 'name' | 'none') => setSortBy(value)}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="grade">По класах</SelectItem>
+                <SelectItem value="name">По іменах</SelectItem>
+                <SelectItem value="none">Без сортування</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-primary">{totalStudents}</div>
+            <div className="text-sm text-muted-foreground">учнів</div>
+          </div>
         </div>
       </div>
 
@@ -170,9 +215,9 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
               Увага: Учні з алергіями
             </CardTitle>
           </CardHeader>
-          <CardContent>
+           <CardContent>
             <div className="grid gap-3">
-              {orders.filter(order => order.allergies.length > 0).map((order, index) => (
+              {sortedOrders.filter(order => order.allergies.length > 0).map((order, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-surface rounded-lg border border-card-border">
                   <div>
                     <div className="font-medium text-foreground">

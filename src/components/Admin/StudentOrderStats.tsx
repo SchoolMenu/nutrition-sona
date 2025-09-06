@@ -4,11 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, CheckCircle, XCircle, TrendingUp, Calendar } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, CheckCircle, XCircle, TrendingUp, Calendar, ArrowUpDown } from "lucide-react";
 import { useStudentOrderStats } from "@/hooks/useStudentOrderStats";
 
 export const StudentOrderStats = () => {
   const [selectedDate, setSelectedDate] = useState('2025-09-05'); // Date with test orders
+  const [sortBy, setSortBy] = useState<'grade' | 'name'>('grade');
   const { stats, loading, error } = useStudentOrderStats(selectedDate);
 
   if (loading) {
@@ -33,6 +35,27 @@ export const StudentOrderStats = () => {
 
   if (!stats) return null;
 
+  // Sort students within each dish choice
+  const getSortedDishStats = () => {
+    return stats.dishChoiceStats.map(dish => ({
+      ...dish,
+      students: [...dish.students].sort((a, b) => {
+        switch (sortBy) {
+          case 'grade':
+            const gradeA = parseInt(a.grade) || 0;
+            const gradeB = parseInt(b.grade) || 0;
+            return gradeA - gradeB;
+          case 'name':
+            return a.name.localeCompare(b.name, 'uk');
+          default:
+            return 0;
+        }
+      })
+    }));
+  };
+
+  const sortedDishStats = getSortedDishStats();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -40,15 +63,29 @@ export const StudentOrderStats = () => {
           <h2 className="text-2xl font-bold text-foreground">Статистика замовлень учнів</h2>
           <p className="text-muted-foreground">Скільки учнів обрали страви на обрану дату</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="date-picker">Дата:</Label>
-          <Input
-            id="date-picker"
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-auto"
-          />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+            <Select value={sortBy} onValueChange={(value: 'grade' | 'name') => setSortBy(value)}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="grade">По класах</SelectItem>
+                <SelectItem value="name">По іменах</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="date-picker">Дата:</Label>
+            <Input
+              id="date-picker"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-auto"
+            />
+          </div>
         </div>
       </div>
 
@@ -116,9 +153,9 @@ export const StudentOrderStats = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {stats.dishChoiceStats.length > 0 ? (
+          {sortedDishStats.length > 0 ? (
             <div className="space-y-4">
-              {stats.dishChoiceStats.map((dish, index) => (
+              {sortedDishStats.map((dish, index) => (
                 <div key={index} className="flex items-center justify-between p-4 border border-card-border rounded-lg">
                   <div className="flex-1">
                     <h4 className="font-medium text-foreground">{dish.dishName}</h4>
