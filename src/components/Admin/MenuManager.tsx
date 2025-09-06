@@ -22,19 +22,17 @@ export const MenuManager = ({
   onUpdateMenu
 }: MenuManagerProps) => {
   const [selectedDay, setSelectedDay] = useState(0);
-  
+
   // Early return if weekMenu is empty or selectedDay is invalid
   if (!weekMenu || weekMenu.length === 0 || !weekMenu[selectedDay]) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <div className="flex items-center justify-center p-8">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
             <p className="text-muted-foreground">Завантаження меню...</p>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -118,13 +116,12 @@ export const MenuManager = ({
   };
   const handleSaveItem = async () => {
     console.log('Saving item with data:', formData);
-    
+
     // Safety check
     if (!weekMenu[selectedDay]) {
       console.error('Selected day is invalid:', selectedDay);
       return;
     }
-    
     const newItem: MenuItem = {
       id: editingItem?.id || `new_${Date.now()}`,
       ...formData
@@ -146,21 +143,20 @@ export const MenuManager = ({
       const categoryKey = `${formData.category}Options` as keyof DayMenu;
       (updatedDay[categoryKey] as MenuItem[]).push(newItem);
     }
-    
+
     // Update local state first
     onUpdateMenu(selectedDay, updatedDay);
-    
+
     // Create updated menu with the new item
     const updatedWeekMenu = [...weekMenu];
     updatedWeekMenu[selectedDay] = updatedDay;
-    
+
     // Save to database automatically
     console.log('Auto-saving updated menu to database...');
     const success = await saveMenuToDatabase(updatedWeekMenu);
     if (success) {
       console.log('Menu saved successfully');
     }
-    
     setIsDialogOpen(false);
   };
   const handleDeleteItem = (itemId: string, category: 'fruit_break' | 'main_meal' | 'afternoon_snack') => {
@@ -169,7 +165,6 @@ export const MenuManager = ({
       console.error('Selected day is invalid for delete:', selectedDay);
       return;
     }
-    
     const currentDay = weekMenu[selectedDay];
     const updatedDay = {
       ...currentDay
@@ -255,7 +250,7 @@ export const MenuManager = ({
       {/* Menu editor */}
       <Tabs defaultValue="main_meal" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="main_meal" className="text-sm">Комплексний обід</TabsTrigger>
+          <TabsTrigger value="main_meal" className="text-sm">Обід</TabsTrigger>
           <TabsTrigger value="fruit_break" className="text-sm">Фруктова перерва</TabsTrigger>
           <TabsTrigger value="afternoon_snack" className="text-sm">Підвечірок</TabsTrigger>
         </TabsList>
@@ -322,7 +317,7 @@ export const MenuManager = ({
               <div>
                 <Label htmlFor="category">Категорія</Label>
                 <Select value={formData.category} onValueChange={(value: 'fruit_break' | 'main_meal' | 'afternoon_snack') => setFormData(prev => ({
-                  ...prev,
+                ...prev,
                 category: value
               }))}>
                   <SelectTrigger>
