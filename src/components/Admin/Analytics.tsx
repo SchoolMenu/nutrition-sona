@@ -275,7 +275,7 @@ export const Analytics = () => {
       </div>
 
       <Tabs defaultValue="orders" className="w-full">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="orders">Статистика замовлень</TabsTrigger>
           <TabsTrigger value="weekly">Тижнева динаміка</TabsTrigger>
           <TabsTrigger value="billing">Розрахунки</TabsTrigger>
