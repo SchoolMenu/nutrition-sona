@@ -192,16 +192,16 @@ const KitchenDashboard = () => {
         userName="Кухар Олена"
       />
       
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <Tabs defaultValue="today" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="today">Сьогоднішні замовлення</TabsTrigger>
-            <TabsTrigger value="week">Замовлення на тиждень</TabsTrigger>
+            <TabsTrigger value="today" className="text-sm">Сьогодні</TabsTrigger>
+            <TabsTrigger value="week" className="text-sm">Тиждень</TabsTrigger>
           </TabsList>
           
           <TabsContent value="today" className="mt-6 space-y-6">
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <Card className="border-card-border">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
@@ -247,7 +247,7 @@ const KitchenDashboard = () => {
                 <CardTitle>Швидкі дії</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   <Button variant="default" onClick={handleShowToday}>
                     <Calendar className="h-4 w-4 mr-2" />
                     Сьогодні

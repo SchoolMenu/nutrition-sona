@@ -29,7 +29,7 @@ export const ChildrenCards = ({ children, onViewChild, onOrderMeals, onChildAdde
         <AddChildDialog onChildAdded={onChildAdded} />
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
         {children.map((child) => (
           <Card key={child.id} className="border-card-border shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
@@ -63,7 +63,7 @@ export const ChildrenCards = ({ children, onViewChild, onOrderMeals, onChildAdde
                 </div>
               )}
               
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
                   variant="outline" 
                   size="sm" 

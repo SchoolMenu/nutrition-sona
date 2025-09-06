@@ -92,7 +92,7 @@ const AdminDashboard = () => {
   return <div className="min-h-screen bg-background">
       <Header userName="Адмін Ірина" />
       
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Week Selector */}
         <Card>
           <CardHeader>
@@ -102,26 +102,28 @@ const AdminDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <Button
                 variant="outline" 
                 onClick={() => handleWeekChange(selectedWeekOffset - 1)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 w-full sm:w-auto"
               >
                 <ChevronLeft className="h-4 w-4" />
-                Попередній тиждень
+                <span className="hidden sm:inline">Попередній тиждень</span>
+                <span className="sm:hidden">Попередній</span>
               </Button>
               
-              <div className="text-center">
-                <p className="font-medium text-lg">{getCurrentWeekLabel()}</p>
+              <div className="text-center px-2">
+                <p className="font-medium text-sm sm:text-lg">{getCurrentWeekLabel()}</p>
               </div>
               
               <Button
                 variant="outline"
                 onClick={() => handleWeekChange(selectedWeekOffset + 1)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 w-full sm:w-auto"
               >
-                Наступний тиждень
+                <span className="hidden sm:inline">Наступний тиждень</span>
+                <span className="sm:hidden">Наступний</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -130,10 +132,10 @@ const AdminDashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="menu" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 gap-1">
-            <TabsTrigger value="menu" className="text-xs md:text-sm py-[1px]">Меню</TabsTrigger>
-            <TabsTrigger value="orders" className="text-xs md:text-sm mx-0 py-[1px]">Замовлення</TabsTrigger>
-            <TabsTrigger value="analytics" className="text-xs md:text-sm py-[1px]">Звіти</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="menu" className="text-sm">Меню</TabsTrigger>
+            <TabsTrigger value="orders" className="text-sm">Замовлення</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-sm">Звіти</TabsTrigger>
           </TabsList>
           
           <TabsContent value="menu" className="mt-8 space-y-6">

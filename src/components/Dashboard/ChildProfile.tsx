@@ -117,26 +117,26 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center gap-3">
         <Button variant="outline" size="sm" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h2 className="text-xl font-semibold">Профіль дитини</h2>
+        <h2 className="text-lg sm:text-xl font-semibold">Профіль дитини</h2>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <Avatar className="h-12 w-12 sm:h-16 sm:w-16 mx-auto sm:mx-0">
               <AvatarImage src={""} alt={child.name} />
-              <AvatarFallback className="bg-primary/10 text-primary font-medium text-lg">
+              <AvatarFallback className="bg-primary/10 text-primary font-medium text-base sm:text-lg">
                 {child.name.split(' ').map(n => n[0]).join('').toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <CardTitle className="text-xl">{child.name}</CardTitle>
-              <div className="flex items-center gap-2 text-muted-foreground mt-1">
+            <div className="text-center sm:text-left">
+              <CardTitle className="text-lg sm:text-xl">{child.name}</CardTitle>
+              <div className="flex items-center gap-2 text-muted-foreground mt-1 justify-center sm:justify-start">
                 <GraduationCap className="h-4 w-4" />
                 <span>{child.grade} клас</span>
               </div>
@@ -145,7 +145,7 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
         </CardHeader>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">

@@ -23,18 +23,18 @@ export const WelcomeCard = ({
           className="w-full h-full object-cover"
         />
       </div>
-      <CardContent className="relative p-6">
-        <div className="space-y-4">
+      <CardContent className="relative p-4 sm:p-6">
+        <div className="space-y-3 sm:space-y-4">
           <div>
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-xl sm:text-2xl font-bold">
               Привіт, {parentName}! 👋
             </h2>
-            <p className="text-primary-foreground/90 mt-1">
+            <p className="text-primary-foreground/90 mt-1 text-sm sm:text-base">
               Замовлення шкільного обіду для ваших дітей
             </p>
           </div>
 
-            <div className="flex items-center gap-6 text-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 text-sm">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span>{childrenCount} {childrenCount === 1 ? 'дитина' : 'дітей'}</span>
@@ -47,7 +47,7 @@ export const WelcomeCard = ({
 
           <Button 
             variant="secondary" 
-            className="bg-accent text-accent-foreground hover:bg-accent-light border-0 shadow-md"
+            className="bg-accent text-accent-foreground hover:bg-accent-light border-0 shadow-md w-full sm:w-auto"
             onClick={() => {
               // Scroll to children section
               const childrenSection = document.querySelector('[data-section="children"]');
@@ -57,7 +57,7 @@ export const WelcomeCard = ({
             }}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Додати дитину або замовити
+            <span className="text-sm sm:text-base">Додати дитину або замовити</span>
           </Button>
         </div>
       </CardContent>

@@ -359,45 +359,45 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
       {/* Week Header */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
             <div>
               <div className="flex items-center gap-2">
-                <CardTitle className="text-xl">Меню на тиждень</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">Меню на тиждень</CardTitle>
                 <HelpTooltip content="Використовуйте стрілки для вибору тижня. Ви можете замовляти обіди до 4 тижнів наперед або переглядати попередні замовлення." />
               </div>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 {getCurrentWeekLabel()}
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleWeekChange(selectedWeekOffset - 1)}
                 disabled={selectedWeekOffset <= -4}
-                className="px-3"
+                className="px-2 sm:px-3 w-full sm:w-auto"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Попередній
+                <span className="text-xs sm:text-sm">Попередній</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleWeekChange(0)}
                 disabled={selectedWeekOffset === 0}
-                className="px-3"
+                className="px-2 sm:px-3 w-full sm:w-auto"
               >
                 <CalendarDays className="h-4 w-4 mr-1" />
-                Сьогодні
+                <span className="text-xs sm:text-sm">Сьогодні</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleWeekChange(selectedWeekOffset + 1)}
                 disabled={selectedWeekOffset >= 4}
-                className="px-3"
+                className="px-2 sm:px-3 w-full sm:w-auto"
               >
-                Наступний
+                <span className="text-xs sm:text-sm">Наступний</span>
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -407,28 +407,27 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
 
       {/* Day Navigation */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => navigateDay('prev')}
               disabled={selectedDayIndex === 0}
-              className="px-3"
+              className="px-3 w-full sm:w-auto"
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
-              Попередній день
+              <span className="text-xs sm:text-sm">Попередній день</span>
             </Button>
             
             <div className="text-center">
-              <h3 className="font-semibold text-lg">{currentDay.dayName}</h3>
-              <p className="text-sm text-muted-foreground">{new Date(currentDay.date).toLocaleDateString('uk-UA')}</p>
-              {hasUnsavedChanges() && (
-                <div className="flex items-center justify-center gap-1 mt-1">
-                  <Clock className="h-3 w-3 text-warning" />
-                  <p className="text-xs text-warning">Є незбережені зміни</p>
-                </div>
-              )}
+              <h3 className="font-semibold text-base sm:text-lg text-foreground">{currentDay?.dayName}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {new Date(currentDay?.date || '').toLocaleDateString('uk-UA', { 
+                  day: 'numeric', 
+                  month: 'long' 
+                })}
+              </p>
             </div>
             
             <Button 
@@ -436,16 +435,14 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
               size="sm" 
               onClick={() => navigateDay('next')}
               disabled={selectedDayIndex === menuData.length - 1}
-              className="px-3"
+              className="px-3 w-full sm:w-auto"
             >
-              Наступний день
+              <span className="text-xs sm:text-sm">Наступний день</span>
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </CardContent>
       </Card>
-
-      {/* Save Button - Move to bottom */}
 
       {/* Menu Options */}
       <div className="space-y-4">
