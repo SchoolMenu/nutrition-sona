@@ -11,7 +11,6 @@ interface QuickStatsProps {
 export const QuickStats = ({ 
   weeklySpent, 
   mealsThisWeek, 
-  upcomingMeals, 
   monthlySpent
 }: QuickStatsProps) => {
   const stats = [
@@ -25,11 +24,7 @@ export const QuickStats = ({
       value: mealsThisWeek.toString(),
       icon: Utensils
     },
-    {
-      title: "Наступних обідів",
-      value: upcomingMeals.toString(),
-      icon: Calendar
-    },
+    
     {
       title: "Витрачено за місяць",
       value: `₴${monthlySpent}`,
