@@ -63,29 +63,15 @@ export const StudentOrderStats = () => {
           <h2 className="text-2xl font-bold text-foreground">Статистика замовлень учнів</h2>
           <p className="text-muted-foreground">Скільки учнів обрали страви на обрану дату</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-            <Select value={sortBy} onValueChange={(value: 'grade' | 'name') => setSortBy(value)}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="grade">По класах</SelectItem>
-                <SelectItem value="name">По іменах</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="date-picker">Дата:</Label>
-            <Input
-              id="date-picker"
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-auto"
-            />
-          </div>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="date-picker">Дата:</Label>
+          <Input
+            id="date-picker"
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="w-auto"
+          />
         </div>
       </div>
 
@@ -147,10 +133,24 @@ export const StudentOrderStats = () => {
       {/* Dish Choice Breakdown */}
       <Card className="border-card-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Розподіл по стравах на {new Date(selectedDate).toLocaleDateString('uk-UA')}
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Розподіл по стравах на {new Date(selectedDate).toLocaleDateString('uk-UA')}
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <Select value={sortBy} onValueChange={(value: 'grade' | 'name') => setSortBy(value)}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="grade">По класах</SelectItem>
+                  <SelectItem value="name">По іменах</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {sortedDishStats.length > 0 ? (

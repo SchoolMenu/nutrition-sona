@@ -108,24 +108,9 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
             })}
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
-          <div className="flex items-center gap-2">
-            <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-            <Select value={sortBy} onValueChange={(value: 'grade' | 'name' | 'none') => setSortBy(value)}>
-              <SelectTrigger className="w-full sm:w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="grade">По класах</SelectItem>
-                <SelectItem value="name">По іменах</SelectItem>
-                <SelectItem value="none">Без сортування</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="text-center sm:text-right">
-            <div className="text-xl sm:text-2xl font-bold text-primary">{totalStudents}</div>
-            <div className="text-sm text-muted-foreground">учнів</div>
-          </div>
+        <div className="text-center sm:text-right">
+          <div className="text-xl sm:text-2xl font-bold text-primary">{totalStudents}</div>
+          <div className="text-sm text-muted-foreground">учнів</div>
         </div>
       </div>
 
@@ -173,10 +158,25 @@ export const DailyOrders = ({ date, orders }: DailyOrdersProps) => {
       {/* Dishes to Prepare */}
       <Card className="border-card-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ChefHat className="h-5 w-5" />
-            Страви до приготування
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <ChefHat className="h-5 w-5" />
+              Страви до приготування
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <Select value={sortBy} onValueChange={(value: 'grade' | 'name' | 'none') => setSortBy(value)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="grade">По класах</SelectItem>
+                  <SelectItem value="name">По іменах</SelectItem>
+                  <SelectItem value="none">Без сортування</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {dishSummaries.map((dish, index) => (
