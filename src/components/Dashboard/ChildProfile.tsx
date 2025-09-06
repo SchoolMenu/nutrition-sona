@@ -265,18 +265,19 @@ export const ChildProfile = ({ child, onBack, onOrderMeals, onChildUpdated }: Ch
         <CardContent>
           <div className="flex gap-3">
             <Button 
-              className="flex-1"
+              className="flex-1 bg-primary hover:bg-primary/90"
               onClick={onOrderMeals}
             >
               <Calendar className="h-4 w-4 mr-2" />
-              Замовити обіди
+              Замовити або змінити обіди
             </Button>
             <Button 
               variant="outline" 
               className="flex-1"
               onClick={() => setEditDialogOpen(true)}
             >
-              Редагувати профіль
+              <User className="h-4 w-4 mr-2" />
+              Редагувати дані
             </Button>
           </div>
         </CardContent>

@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Clock, Star } from "lucide-react";
+import { Plus, Clock, Star, Users } from "lucide-react";
 import heroImage from "@/assets/hero-lunch.jpg";
 
 interface WelcomeCardProps {
@@ -34,23 +34,30 @@ export const WelcomeCard = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <Star className="h-4 w-4" />
-              <span>{childrenCount} дітей</span>
+            <div className="flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span>{childrenCount} {childrenCount === 1 ? 'дитина' : 'дітей'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span>{pendingOrders} активних замовлень</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>{pendingOrders} активних замовлень</span>
-            </div>
-          </div>
 
           <Button 
             variant="secondary" 
             className="bg-accent text-accent-foreground hover:bg-accent-light border-0 shadow-md"
+            onClick={() => {
+              // Scroll to children section
+              const childrenSection = document.querySelector('[data-section="children"]');
+              if (childrenSection) {
+                childrenSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Нове замовлення
+            Додати дитину або замовити
           </Button>
         </div>
       </CardContent>

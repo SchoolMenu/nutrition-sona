@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Calendar, AlertTriangle, CheckCircle } from "lucide-react";
+import { Calendar, AlertTriangle, CheckCircle, User } from "lucide-react";
 import { AddChildDialog } from "./AddChildDialog";
 
 interface Child {
@@ -23,7 +23,7 @@ interface ChildrenCardsProps {
 
 export const ChildrenCards = ({ children, onViewChild, onOrderMeals, onChildAdded }: ChildrenCardsProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-section="children">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground">Ваші діти</h3>
         <AddChildDialog onChildAdded={onChildAdded} />
@@ -70,7 +70,8 @@ export const ChildrenCards = ({ children, onViewChild, onOrderMeals, onChildAdde
                   className="flex-1"
                   onClick={() => onViewChild(child.id)}
                 >
-                  Переглянути
+                  <User className="h-4 w-4 mr-1" />
+                  Профіль
                 </Button>
                 <Button 
                   variant={child.hasOrderForWeek ? "secondary" : "default"} 
@@ -79,7 +80,7 @@ export const ChildrenCards = ({ children, onViewChild, onOrderMeals, onChildAdde
                   onClick={() => onOrderMeals(child.id)}
                 >
                   <Calendar className="h-4 w-4 mr-1" />
-                  {child.hasOrderForWeek ? "Змінити" : "Замовити"}
+                  {child.hasOrderForWeek ? "Змінити обіди" : "Замовити обіди"}
                 </Button>
               </div>
             </CardContent>

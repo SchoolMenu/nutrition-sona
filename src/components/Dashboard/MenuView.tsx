@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMenuItems } from "@/hooks/useMenuItems";
 import { getWeekDates } from "@/lib/weekUtils";
 import { toast } from "sonner";
+import { HelpTooltip } from "./HelpTooltip";
 
 interface Child {
   id: string;
@@ -334,7 +335,10 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
       {/* Child Selection */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Оберіть дитину</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg">Оберіть дитину</CardTitle>
+            <HelpTooltip content="Виберіть дитину, для якої хочете замовити обіди. Ви можете перемикатися між дітьми в будь-який час." />
+          </div>
         </CardHeader>
         <CardContent>
           <Select value={currentChild} onValueChange={setCurrentChild}>
@@ -357,7 +361,10 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-xl">Меню на тиждень</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-xl">Меню на тиждень</CardTitle>
+                <HelpTooltip content="Використовуйте стрілки для вибору тижня. Ви можете замовляти обіди до 4 тижнів наперед або переглядати попередні замовлення." />
+              </div>
               <CardDescription>
                 {getCurrentWeekLabel()}
               </CardDescription>
@@ -367,25 +374,31 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
                 variant="outline"
                 size="sm"
                 onClick={() => handleWeekChange(selectedWeekOffset - 1)}
-                disabled={selectedWeekOffset <= -4} // Limit to 4 weeks back
+                disabled={selectedWeekOffset <= -4}
+                className="px-3"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Попередній
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleWeekChange(0)}
                 disabled={selectedWeekOffset === 0}
+                className="px-3"
               >
-                <CalendarDays className="h-4 w-4" />
+                <CalendarDays className="h-4 w-4 mr-1" />
+                Сьогодні
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleWeekChange(selectedWeekOffset + 1)}
-                disabled={selectedWeekOffset >= 4} // Limit to 4 weeks ahead
+                disabled={selectedWeekOffset >= 4}
+                className="px-3"
               >
-                <ChevronRight className="h-4 w-4" />
+                Наступний
+                <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
           </div>
@@ -401,56 +414,51 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
               size="sm" 
               onClick={() => navigateDay('prev')}
               disabled={selectedDayIndex === 0}
+              className="px-3"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Попередній день
             </Button>
             
             <div className="text-center">
               <h3 className="font-semibold text-lg">{currentDay.dayName}</h3>
-              <p className="text-sm text-muted-foreground">{currentDay.date}</p>
+              <p className="text-sm text-muted-foreground">{new Date(currentDay.date).toLocaleDateString('uk-UA')}</p>
               {hasUnsavedChanges() && (
-                <p className="text-xs text-warning">Є незбережені зміни</p>
+                <div className="flex items-center justify-center gap-1 mt-1">
+                  <Clock className="h-3 w-3 text-warning" />
+                  <p className="text-xs text-warning">Є незбережені зміни</p>
+                </div>
               )}
             </div>
             
             <Button 
               variant="outline" 
               size="sm" 
-            onClick={() => navigateDay('next')}
-            disabled={selectedDayIndex === menuData.length - 1}
+              onClick={() => navigateDay('next')}
+              disabled={selectedDayIndex === menuData.length - 1}
+              className="px-3"
             >
-              <ChevronRight className="h-4 w-4" />
+              Наступний день
+              <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Save Button */}
-      {currentChild && (
-        <Card>
-          <CardContent className="p-4">
-            <Button 
-              onClick={saveSelections}
-              disabled={saving || !hasUnsavedChanges()}
-              className="w-full"
-              size="lg"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              {saving ? 'Збереження...' : 'Зберегти вибір'}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      {/* Save Button - Move to bottom */}
 
       {/* Menu Options */}
       <div className="space-y-4">
         {/* Meal 1 Options */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Clock className="h-5 w-5" />
-              Перша страва
-            </CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Clock className="h-5 w-5" />
+                Перша страва
+              </CardTitle>
+              <HelpTooltip content="Виберіть одну головну страву для обіду. Страви з алергенами будуть заблоковані, якщо у дитини є відповідні алергії." />
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {currentDay.meal1Options.map((meal) => (
@@ -548,10 +556,13 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
         {currentDay.sideOptions.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Clock className="h-5 w-5" />
-                Додатково (можна обрати до 2 страв)
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Clock className="h-5 w-5" />
+                  Додатково (можна обрати до 2 страв)
+                </CardTitle>
+                <HelpTooltip content="Ви можете обрати до 2 додаткових страв. Це може бути десерт, салат, напій або інші доповнення до основного обіду." />
+              </div>
             </CardHeader>
             <CardContent className="space-y-3">
               {currentDay.sideOptions.map((meal) => (
@@ -598,6 +609,28 @@ export const MenuView = ({ selectedChildId, onOrdersChange }: MenuViewProps) => 
           </Card>
         )}
       </div>
+
+      {/* Save Button - Bottom of interface for better UX */}
+      {currentChild && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-4">
+            <Button 
+              onClick={saveSelections}
+              disabled={saving || !hasUnsavedChanges()}
+              className="w-full"
+              size="lg"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              {saving ? 'Збереження...' : hasUnsavedChanges() ? 'Зберегти вибір' : 'Всі зміни збережено'}
+            </Button>
+            {hasUnsavedChanges() && (
+              <p className="text-center text-sm text-muted-foreground mt-2">
+                Не забудьте зберегти ваш вибір перед виходом
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

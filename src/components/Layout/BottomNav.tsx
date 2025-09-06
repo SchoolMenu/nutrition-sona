@@ -8,9 +8,9 @@ interface BottomNavProps {
 
 export const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   const navItems = [
-    { id: "home", label: "Головна", icon: Home },
-    { id: "menu", label: "Меню", icon: Calendar },
-    { id: "profile", label: "Профіль", icon: User },
+    { id: "home", label: "Головна", icon: Home, description: "Огляд та статистика" },
+    { id: "menu", label: "Замовлення", icon: Calendar, description: "Меню та замовлення обідів" },
+    { id: "profile", label: "Діти", icon: User, description: "Профілі дітей" },
   ];
 
   return (
@@ -23,10 +23,10 @@ export const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
               variant="ghost"
               size="sm"
               className={`
-                flex flex-col items-center gap-1 h-auto py-2 px-3
+                flex flex-col items-center gap-1 h-auto py-2 px-3 transition-all
                 ${activeTab === item.id 
-                  ? "text-primary bg-primary/10" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  ? "text-primary bg-primary/10 shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                 }
               `}
               onClick={() => onTabChange(item.id)}
